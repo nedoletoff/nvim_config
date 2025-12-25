@@ -102,4 +102,27 @@ return {
       -- client.server_capabilities.semanticTokensProvider = nil
     end,
   },
+  
+  -- Custom handler for basedpyright to ensure proper configuration
+  local function setup_basedpyright()
+    local lspconfig = require('lspconfig')
+    lspconfig.basedpyright.setup{
+      settings = {
+        basedpyright = {
+          analysis = {
+            typeCheckingMode = "basic",
+            autoImportCompletions = true,
+            diagnosticMode = "workspace",
+            useLibraryCodeForTypes = true,
+          },
+        },
+      },
+      handlers = {
+        ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded' }),
+        ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'rounded' }),
+      },
+    }
+  end
+  
+  setup_basedpyright()
 }
