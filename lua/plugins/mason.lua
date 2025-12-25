@@ -19,6 +19,9 @@ return {
 
         -- install debuggers
         "debugpy",
+              "pyright",
+              "black",
+              "ruff",
 
         -- install any other package
         "tree-sitter-cli",
