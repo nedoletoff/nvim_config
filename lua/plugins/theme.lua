@@ -1,16 +1,29 @@
 return {
-  -- Основная тема: Darcula (как в PyCharm)
+  -- Основная тема: Monokai
   {
-    "doums/darcula.vim",
+    "tanvirtin/monokai.nvim",
     lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme("darcula")
+      vim.cmd.colorscheme("monokai")
     end,
   },
-  -- Дополнительная тема: Monokai (на выбор)
+  -- Gruvbox - вкусная и выразительная
   {
-    "tanvirtin/monokai.nvim",
+    "morhetz/gruvbox",
     lazy = true,
+    priority = 900,
+  },
+  -- Nord - минималистная холодная палитра
+  {
+    "arcticicestudio/nord-vim",
+    lazy = true,
+    priority = 800,
+  },
+  -- Kanagawa - японские эстетика
+  {
+    "rebelot/kanagawa.nvim",
+    lazy = true,
+    priority = 700,
   },
 }
