@@ -13,10 +13,10 @@ git pull origin main
 # Метод 1: Через Mason (автоматический)
 nvim
 :Mason
-# Найти и установить: basedpyright, black, ruff, debugpy
+# Найти и установить: pyright, black, ruff, debugpy
 
 # Метод 2: Через pip (если Mason не работает)
-pip install --user basedpyright black ruff debugpy
+pip install --user pyright black ruff debugpy
 ```
 
 ### Шаг 3: Перезагрузить Neovim
@@ -31,7 +31,7 @@ nvim
 # В Neovim
 :checkhealth python3
 :LspInfo
-# Должен показать: basedpyright running
+# Должен показать: pyright running
 ```
 
 ## 🎮 Горячие клавиши (PyCharm функционал)
