@@ -8,8 +8,7 @@ return {
       "lua-language-server",
       "stylua",
       -- Python tools
-      "basedpyright",
-      "black",
+"pyright",      "black",
       "ruff",
       "debugpy",
       -- Tree-sitter
