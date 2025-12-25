@@ -6,9 +6,8 @@
 
 - **LSP**: Pyright, Ruff, Lua LS (управляются через mason)
 - **Форматирование**: Автоматическое форматирование на сохранение
-- **Theme**: Darcula (like PyCharm) / Monokai (optional)
-- **Синтаксис**: Treesitter для подсветки синтаксиса
-
+- **Themes**: Monokai (default) / Gruvbox / Nord / Kanagawa (optional)- **Синтаксис**: Treesitter для
+- **Syntax**: Treesitter для подсветки синтаксиса
 ## Требования
 
 - Neovim 0.9+
