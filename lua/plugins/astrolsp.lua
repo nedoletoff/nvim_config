@@ -102,4 +102,4 @@ return {
       -- client.server_capabilities.semanticTokensProvider = nil
     end,
     }
-  },
+  }
