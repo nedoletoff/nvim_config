@@ -1,23 +1,13 @@
--- Python development setup for Neovim
--- Includes LSP (pyright), Formatting (black, ruff), and Debugging (DAP)
+-- Python debugging configuration (DAP)
+-- Requires: debugpy, nvim-dap, nvim-dap-python, nvim-dap-ui
 
 return {
-  {
-    "nvimtools/none-ls.nvim",
-    ft = { "python" },
-    opts = function(_, opts)
-      local null_ls = require "null-ls"
-      table.insert(opts.sources, null_ls.builtins.formatting.black.with { extra_args = { "--line-length", "100" } })
-      table.insert(opts.sources, null_ls.builtins.diagnostics.ruff.with { extra_args = { "--line-length", "100" } })
-      return opts
-    end,
-  },
-  {
-    "mfussenegger/nvim-dap",
-  },
+  -- Debug Adapter Protocol
+  { "mfussenegger/nvim-dap", lazy = true },
+  -- Python-specific DAP configuration
   {
     "mfussenegger/nvim-dap-python",
-    dependencies = { "mfussenegger/nvim-dap" },
+    lazy = true,
     ft = "python",
     config = function()
       local dap_python = require "dap-python"
@@ -37,8 +27,11 @@ return {
       }
     end,
   },
+  -- DAP UI for interactive debugging
   {
     "rcarriga/nvim-dap-ui",
+    lazy = true,
+    ft = "python",
     dependencies = { "mfussenegger/nvim-dap" },
     config = function()
       local dap = require "dap"
@@ -46,6 +39,7 @@ return {
 
       dapui.setup()
 
+      -- Auto-open/close DAP UI on debug session
       dap.listeners.after.event_initialized["dapui_config"] = function()
         dapui.open()
       end
@@ -55,15 +49,6 @@ return {
       dap.listeners.before.event_exited["dapui_config"] = function()
         dapui.close()
       end
-
-      vim.keymap.set("n", "<F5>", dap.continue, { desc = "DAP Continue" })
-      vim.keymap.set("n", "<F10>", dap.step_over, { desc = "DAP Step Over" })
-      vim.keymap.set("n", "<F11>", dap.step_into, { desc = "DAP Step Into" })
-      vim.keymap.set("n", "<F12>", dap.step_out, { desc = "DAP Step Out" })
-      vim.keymap.set("n", "<Leader>b", dap.toggle_breakpoint, { desc = "DAP Toggle Breakpoint" })
-      vim.keymap.set("n", "<Leader>B", function()
-        dap.set_breakpoint(vim.fn.input "Breakpoint condition: ")
-      end, { desc = "DAP Set Breakpoint" })
     end,
   },
 }
