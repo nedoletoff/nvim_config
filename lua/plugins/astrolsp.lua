@@ -45,6 +45,10 @@ return {
     ---@diagnostic disable: missing-fields
     config = {
       -- clangd = { capabilities = { offsetEncoding = "utf-8" } },
+            basedpyright = {
+        cmd = { "node", vim.fn.expand("~/.local/share/nvim/mason/bin/basedpyright-langserver"), "--stdio" },
+      },
+      
     },
     -- customize how language servers are attached
     handlers = {
