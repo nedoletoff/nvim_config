@@ -7,7 +7,7 @@ return {
       vim.o.timeoutlen = 300
     end,
     opts = {
-      preset = "helix",
+      preset = "modern",
       icons = {
         breadcrumb = "》",
         separator = "➜",
