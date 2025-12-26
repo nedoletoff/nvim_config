@@ -19,5 +19,6 @@ return {
       "ruff",
       "lua_ls",
     },
+        skip_setup = { "pyright", "ruff" },
   },
 }
