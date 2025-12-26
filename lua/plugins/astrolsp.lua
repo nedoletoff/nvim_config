@@ -15,10 +15,8 @@ return {
       },
     },
     servers = {
-      "pyright",
-      "ruff",
+    "ruff",
       "lua_ls",
     },
-        skip_setup = { "pyright", "ruff" },
-  },
+skip_setup = { "ruff" },  },
 }
