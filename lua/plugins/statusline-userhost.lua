@@ -15,35 +15,32 @@ return {
 
         -- Add user@host component with separator and colors from theme
         local user_host_component = {
-          -- Separator before user@host component
+          -- Separator with spacing
           {
-            provider = status.sep.left,
-            hl = function()
-              return {
-                fg = "StatuslineUser",
-                bg = "StatusLine",
-              }
-            end,
+            provider = " ",
+            hl = "StatusLine",
           },
           -- User component with theme colors
           {
             provider = function()
-              return " " .. (os.getenv("USER") or os.getenv("USERNAME") or "user") .. " "
+              return (os.getenv("USER") or os.getenv("USERNAME") or "user")
             end,
             hl = function()
+              local colors = require("astroui.colors")
               return {
-                fg = status.hl.lualine_b_visual.fg,
-                bg = status.hl.lualine_a_visual.fg,
+                fg = colors.get_hlgroup("Visual").fg or colors.yellow,
+                bg = colors.get_hlgroup("Normal").bg or colors.bg,
                 bold = true,
               }
             end,
           },
-          -- @ symbol with accent color
+          -- @ symbol
           {
             provider = "@",
             hl = function()
+              local colors = require("astroui.colors")
               return {
-                fg = status.hl.lualine_c_normal.fg,
+                fg = colors.get_hlgroup("String").fg or colors.green,
               }
             end,
           },
@@ -53,10 +50,16 @@ return {
               return vim.fn.hostname()
             end,
             hl = function()
+              local colors = require("astroui.colors")
               return {
-                fg = status.hl.lualine_b_command.fg,
+                fg = colors.get_hlgroup("Function").fg or colors.blue,
               }
             end,
+          },
+          -- Trailing space
+          {
+            provider = " ",
+            hl = "StatusLine",
           },
         }
 
