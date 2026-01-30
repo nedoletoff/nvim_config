@@ -16,6 +16,9 @@ return {
           return user .. "@" .. host
         end,
       },
+              section = {
+          rz = { "user_host" },
+        },
     },
   },
   config = function(_, opts)
