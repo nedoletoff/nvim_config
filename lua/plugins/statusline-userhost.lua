@@ -1,5 +1,5 @@
--- Add user@host component to statusline with colors
--- Simple provider that displays user@hostname with highlighting
+-- Add user@host component to statusline with colors from theme
+-- Simple provider that displays user@hostname with highlighting and separator
 
 return {
   {
@@ -13,25 +13,50 @@ return {
         -- If statusline is a function, call it to get the table
         local statusline_table = type(opts.statusline) == "function" and opts.statusline() or opts.statusline
 
-        -- Add user@host component in the middle-right area with colors
+        -- Add user@host component with separator and colors from theme
         local user_host_component = {
+          -- Separator before user@host component
+          {
+            provider = status.sep.left,
+            hl = function()
+              return {
+                fg = "StatuslineUser",
+                bg = "StatusLine",
+              }
+            end,
+          },
+          -- User component with theme colors
           {
             provider = function()
-              return os.getenv("USER") or os.getenv("USERNAME") or "user"
+              return " " .. (os.getenv("USER") or os.getenv("USERNAME") or "user") .. " "
             end,
-            hl = "StatuslineUser",
+            hl = function()
+              return {
+                fg = status.hl.lualine_b_visual.fg,
+                bg = status.hl.lualine_a_visual.fg,
+                bold = true,
+              }
+            end,
           },
+          -- @ symbol with accent color
           {
-            provider = function()
-              return "@"
+            provider = "@",
+            hl = function()
+              return {
+                fg = status.hl.lualine_c_normal.fg,
+              }
             end,
-            hl = "StatuslineAt",
           },
+          -- Host component with theme colors
           {
             provider = function()
               return vim.fn.hostname()
             end,
-            hl = "StatuslineHost",
+            hl = function()
+              return {
+                fg = status.hl.lualine_b_command.fg,
+              }
+            end,
           },
         }
 
