@@ -17,6 +17,11 @@ return {
         end,
       },
     },
+            status = {
+          section = {
+            rz = { "user_host" },
+          },
+        },
   },
   config = function(_, opts)
     require("astroui").setup(opts)
