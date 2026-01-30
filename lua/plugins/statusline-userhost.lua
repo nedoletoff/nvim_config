@@ -1,60 +1,41 @@
--- Add user@host component to statusline with colors from theme
--- Simple provider that displays user@hostname with highlighting and separator
+-- Add user@host component to statusline
+-- Displays user@hostname in the statusline with colors
 
 return {
   {
     "rebelot/heirline.nvim",
     optional = true,
     opts = function(_, opts)
-      local status = require("astroui.status")
-
       -- Get the statusline config
       if opts.statusline then
         -- If statusline is a function, call it to get the table
         local statusline_table = type(opts.statusline) == "function" and opts.statusline() or opts.statusline
 
-        -- Add user@host component with separator and colors from theme
+        -- Add user@host component with separator and colors
         local user_host_component = {
           -- Separator with spacing
           {
             provider = " ",
             hl = "StatusLine",
           },
-          -- User component with theme colors
+          -- User component
           {
             provider = function()
               return (os.getenv("USER") or os.getenv("USERNAME") or "user")
             end,
-            hl = function()
-              local colors = require("astroui.colors")
-              return {
-                fg = colors.get_hlgroup("Visual").fg or colors.yellow,
-                bg = colors.get_hlgroup("Normal").bg or colors.bg,
-                bold = true,
-              }
-            end,
+            hl = "Visual",
           },
           -- @ symbol
           {
             provider = "@",
-            hl = function()
-              local colors = require("astroui.colors")
-              return {
-                fg = colors.get_hlgroup("String").fg or colors.green,
-              }
-            end,
+            hl = "String",
           },
-          -- Host component with theme colors
+          -- Host component
           {
             provider = function()
               return vim.fn.hostname()
             end,
-            hl = function()
-              local colors = require("astroui.colors")
-              return {
-                fg = colors.get_hlgroup("Function").fg or colors.blue,
-              }
-            end,
+            hl = "Function",
           },
           -- Trailing space
           {
