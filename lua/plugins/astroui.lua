@@ -5,25 +5,12 @@ return {
   opts = {
     -- change colorscheme
     colorscheme = "astrodark",
-
-    -- configure AstroNvim status line with user@host
+    -- configure AstroNvim UI options
     status = {
       attributes = {
         statusline = {}, -- statusline default attributes
       },
-      component = {
-        -- add user@host component
-        user_host = function()
-          local user = vim.loop.os_getenv("USER") or vim.loop.os_getenv("USERNAME") or "user"
-          local host = vim.loop.os_gethostname() or "host"
-          return user .. "@" .. host
-        end,
-      },
-      section = {
-        rz = { " ", "user_host" }, -- add user_host to right section
-      },
     },
-
     -- AstroUI allows you to easily modify highlight groups easily for any and all colorschemes
     highlights = {
       init = {
@@ -35,7 +22,6 @@ return {
         -- Normal = { bg = "#000000" },
       },
     },
-
     -- Icons can be configured throughout the interface
     icons = {
       -- configure the loading of the lsp in the status line
