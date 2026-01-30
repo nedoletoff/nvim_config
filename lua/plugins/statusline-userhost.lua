@@ -1,5 +1,5 @@
--- Add user@host component to statusline
--- Simple provider that displays user@hostname
+-- Add user@host component to statusline with colors
+-- Simple provider that displays user@hostname with highlighting
 
 return {
   {
@@ -13,19 +13,32 @@ return {
         -- If statusline is a function, call it to get the table
         local statusline_table = type(opts.statusline) == "function" and opts.statusline() or opts.statusline
 
-        -- Add user@host component in the middle-right area
-        -- Find the fill component and add after it
+        -- Add user@host component in the middle-right area with colors
         local user_host_component = {
-          provider = function()
-            local user = os.getenv("USER") or os.getenv("USERNAME") or "user"
-            local hostname = vim.fn.hostname()
-            return " " .. user .. "@" .. hostname .. " "
-          end,
-          hl = "StatusLine",
+          {
+            provider = function()
+              return os.getenv("USER") or os.getenv("USERNAME") or "user"
+            end,
+            hl = "StatuslineUser",
+          },
+          {
+            provider = function()
+              return "@"
+            end,
+            hl = "StatuslineAt",
+          },
+          {
+            provider = function()
+              return vim.fn.hostname()
+            end,
+            hl = "StatuslineHost",
+          },
         }
 
         -- Insert the user@host component before the mode at the end
-        table.insert(statusline_table, #statusline_table, user_host_component)
+        for i, component in ipairs(user_host_component) do
+          table.insert(statusline_table, #statusline_table, component)
+        end
 
         -- Set it back as a table, not a function
         opts.statusline = statusline_table
