@@ -7,28 +7,23 @@ return {
       },
       component = {
         keys_typed = function()
-                  user_host = function()
+          if not vim.g.keys_typed then vim.g.keys_typed = 0 end
+          return " 󰌌 " .. vim.g.keys_typed
+        end,
+        user_host = function()
           local user = vim.loop.os_getenv("USER") or vim.loop.os_getenv("USERNAME") or "user"
           local host = vim.loop.os_gethostname() or "host"
           return user .. "@" .. host
         end,
-          if not vim.g.keys_typed then vim.g.keys_typed = 0 end
-          return " 󰌌 " .. vim.g.keys_typed
-        end,
       },
     },
-            status = {
-          section = {
-            rz = { "user_host" },
-          },
-        },
   },
   config = function(_, opts)
     require("astroui").setup(opts)
-    
+
     -- Initialize keys counter
     vim.g.keys_typed = 0
-    
+
     -- Count typed keys in insert mode
     vim.api.nvim_create_autocmd("InsertCharPre", {
       callback = function()
