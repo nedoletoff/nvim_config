@@ -4,16 +4,18 @@
 
 ## Характеристики
 
-- **LSP**: Pyright, Ruff, Lua LS (управляются через mason)
-- **Форматирование**: Автоматическое форматирование на сохранение
-- **Themes**: Monokai (default) / Gruvbox / Nord / Kanagawa (optional)- **Синтаксис**: Treesitter для
-- **Syntax**: Treesitter для подсветки синтаксиса
+- **LSP**: Pyright, Ruff, Lua LS, gopls, jdtls, clangd, ts_ls, dockerls, yamlls, bashls (управляются через mason)
+- **Форматирование**: Автоматическое форматирование на сохранение (через gopls, goimports, gofumpt, black, prettier, и т.д.)
+- **Themes**: Monokai (default) / Gruvbox / Nord / Kanagawa (optional) - **Синтаксис**: Treesitter для подсветки синтаксиса
+- **Go поддержка**: Полная поддержка Go через `astrocommunity.pack.go` (gopls, goimports, gofumpt, golangci-lint, delve)
+
 ## Требования
 
-- Neovim 0.9+
+- Neovim 0.10+
 - Git
 - Node.js (для некоторых LSP серверов)
-- - Rust 1.90+ (для actually-doom плагина)
+- Go 1.21+ (для Go разработки)
+- Rust 1.90+ (для actually-doom плагина)
 
 ## Быстрая установка
 
@@ -44,12 +46,14 @@ nvim
 
 ```
 lua/
-  ├── plugins/          # Основные плагины
-  │   ├── astrocore.lua # Core конфиг
-  │   ├── astrolsp.lua  # LSP конфиг (pyright, ruff, lua_ls)
-  │   └── theme.lua     # Тема Monokai
-  ├── lazy_setup.lua    # Инициализация Lazy
-  └── polish.lua        # Дополнительные настройки
+├── plugins/            # Основные плагины
+│   ├── astrocore.lua     # Core конфиг
+│   ├── astrolsp.lua      # LSP конфиг (включая gopls с inlay hints)
+│   ├── mason.lua         # Mason tool installer (форматтеры/линтеры/DAP)
+│   ├── astrocommunity.lua # Community packs (Go, Python, Java, C++, JS/TS)
+│   └── theme.lua         # Тема Monokai
+├── lazy_setup.lua        # Инициализация Lazy
+└── polish.lua            # Дополнительные настройки
 ```
 
 ## Горячие клавиши
@@ -72,61 +76,38 @@ return {
 }
 ```
 
+## Важные изменения
+
+### Убраны устаревшие компоненты
+
+- **none-ls.lua / null-ls** - удалён, так как deprecated. Форматирование теперь через LSP (gopls, pyright) и `mason-tool-installer`
+- **mason-null-ls.nvim** - заменён на `WhoIsSethDaniel/mason-tool-installer.nvim`
+
+### Go окружение
+
+Теперь Go-разработка полностью настроена:
+- **gopls** с inlay hints, staticcheck, gofumpt
+- **goimports** автоматически устанавливается через `mason-tool-installer`
+- **golangci-lint** для линтинга
+- **delve** для отладки
+
+Никаких конфликтов null-ls больше нет!
+
 ## Дополнительные плагины
 
-### 1. Bad Apple (bad-apple.lua)
-**Описание:** Проигрывает Bad Apple анимацию в Neovim.
+### Actually Doom (actually-doom.lua)
 
-**Использование:**
-```
-:BadApple
-```
-
-**Быстрая клавиша:** `<leader>ba`
-
-**Требования:** libcanberra (опционально для звука)
-
-### 2. Счётчик введённых символов (statusline-custom.lua)
-**Описание:** Показывает количество введённых символов за сессию на нижней панели.
-
-**Особенности:**
-- Автоматически инициализируется при запуске
-- Считает символы в режиме Insert (InsertCharPre)
-- Отображается в statusline с иконкой
-
-**Пример:** ` Keys: 2345`
-
-### 3. Doom-like UI (doom-ui.lua)
-Два плагина для красивого UI подобно Doom Emacs:
-
-**which-key.nvim** - показывает доступные команды при нажатии `<leader>`
-- Preset: "modern"- Timeout: 300ms
-- Красивое меню со всеми доступными командами
-
-### 4. Actually Doom (actually-doom.lua)
-
-**Описание:** Запускает полноценную игру Doom прямо внутри Neovim.
-
-**Использование:**
+Запускает полноценную игру Doom прямо внутри Neovim.
 
 ```
 :ActuallyDoom
 ```
 
-**Требования:** Rust 1.90+ (для сборки и установки плагина через cargo)
+**Требования**: Rust 1.90+
 
-**Примечание:** При первом запуске плагин скомпилирует игру, что может занять время.
+### Jinja Template Support (jinja.lua)
 
-### 5. Jinja Template Support (jinja.lua)
-
-**Описание:** Добавляет поддержку Jinja2 темплетов (файлы `.j2` и `*.yaml.j2`) с LSP и подсветкой синтаксиса.
-
-**Особенности:**
-
-- Автоматически определяет тип файла Jinja
-- Поддержка jinja-lsp для интеллектуальных подсказок
-
-**Требования:** Работает на AstroNvim v5 без дополнительных внешних зависимостей
+Добавляет поддержку Jinja2 темплетов (файлы `.j2` и `*.yaml.j2`) с LSP и подсветкой синтаксиса.
 
 ## Лицензия
 
