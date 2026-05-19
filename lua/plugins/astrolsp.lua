@@ -3,23 +3,11 @@ return {
   "AstroNvim/astrolsp",
   ---@type AstroLSPOpts
   opts = {
-    -- Список LSP-серверов для автозапуска
-    servers = {
-      "pyright",
-      "ruff",
-      "lua_ls",
-      "jsonls",
-      "dockerls",
-      "yamlls",
-      "helm_ls",
-      "bashls",
-      "gopls",
-      "jdtls",
-      "clangd",
-      "ts_ls", -- Актуальное название вместо tsserver для JS/TS
-    },
+    -- НЕ указываем список servers явно!
+    -- Community packs (astrocommunity.lua) автоматически установят нужные LSP
+    -- Это позволяет конфигу работать даже если не все инструменты установлены
 
-    -- Настройка отдельных LSP-серверов
+    -- Настройка отдельных LSP-серверов (только для тех, что уже установлены)
     config = {
       gopls = {
         settings = {
@@ -30,7 +18,6 @@ return {
             },
             staticcheck = true,
             gofumpt = true,
-            -- Говорим gopls использовать goimports как форматтер -- это устраняет ошибку failed to install
             usePlaceholders = true,
             completeUnimported = true,
             hints = {
