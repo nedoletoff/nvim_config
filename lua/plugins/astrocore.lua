@@ -80,7 +80,6 @@ return {
 
         -- setting a mapping to false will disable it
         -- ["<C-S>"] = false,
-      }
           i = {
       -- exit insert mode with jj
       ["jj"] = { "<Esc>", desc = "Exit insert mode" },
