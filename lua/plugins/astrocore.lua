@@ -45,6 +45,7 @@ return {
         spell = false, -- sets vim.opt.spell
         signcolumn = "yes", -- sets vim.opt.signcolumn to yes
         wrap = false, -- sets vim.opt.wrap
+              colorcolumn = "120", -- shows line length limit
       },
       g = { -- vim.g.<key>
         -- configure global vim variables (vim.g)
@@ -79,7 +80,11 @@ return {
 
         -- setting a mapping to false will disable it
         -- ["<C-S>"] = false,
-      },
+      }
+          i = {
+      -- exit insert mode with jj
+      ["jj"] = { "<Esc>", desc = "Exit insert mode" },
+    },,
     },
   },
 }
