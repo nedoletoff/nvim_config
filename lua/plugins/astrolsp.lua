@@ -1,22 +1,43 @@
+-- lua/plugins/astrolsp.lua
 return {
   "AstroNvim/astrolsp",
   ---@type AstroLSPOpts
   opts = {
-    features = {
-      codelens = true,
-      inlay_hints = false,
-      semantic_tokens = true,
-    },
-    formatting = {
-      enabled = true,
-      format_on_save = {
-        enabled = true,
-        allow_filetypes = { "python", "lua", "javascript", "typescript" },
-      },
-    },
+    -- Список серверов для автозапуска
     servers = {
-    "ruff",
+      "pyright",
+      "ruff",
       "lua_ls",
+      "jsonls",
+      "dockerls",
+      "yamlls",
+      "helm_ls",
+      "bashls",
+      "gopls",
+      "jdtls",
+      "clangd",
+      "ts_ls", -- Актуальное название вместо tsserver для JS/TS
     },
-skip_setup = { "ruff" },  },
+    
+    -- Настройка форматирования
+    formatting = {
+      format_on_save = {
+        enabled = true, -- Включаем автоформатирование при сохранении
+        allow_filetypes = {
+          "python",
+          "json",
+          "dockerfile",
+          "yaml",
+          "sh",
+          "go",
+          "java",
+          "cpp",
+          "javascript",
+          "typescript",
+          "lua"
+        },
+      },
+      timeout_ms = 3000, -- Увеличиваем таймаут для тяжелых форматеров (например, Java)
+    },
+  },
 }
