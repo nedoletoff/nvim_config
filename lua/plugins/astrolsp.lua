@@ -3,7 +3,7 @@ return {
   "AstroNvim/astrolsp",
   ---@type AstroLSPOpts
   opts = {
-    -- Список серверов для автозапуска
+    -- Список LSP-серверов для автозапуска
     servers = {
       "pyright",
       "ruff",
@@ -18,11 +18,38 @@ return {
       "clangd",
       "ts_ls", -- Актуальное название вместо tsserver для JS/TS
     },
-    
+
+    -- Настройка отдельных LSP-серверов
+    config = {
+      gopls = {
+        settings = {
+          gopls = {
+            analyses = {
+              unusedparams = true,
+              shadow = true,
+            },
+            staticcheck = true,
+            gofumpt = true,
+            -- Говорим gopls использовать goimports как форматтер -- это устраняет ошибку failed to install
+            usePlaceholders = true,
+            completeUnimported = true,
+            hints = {
+              assignVariableTypes = true,
+              compositeLiteralFields = true,
+              constantValues = true,
+              functionTypeParameters = true,
+              parameterNames = true,
+              rangeVariableTypes = true,
+            },
+          },
+        },
+      },
+    },
+
     -- Настройка форматирования
     formatting = {
       format_on_save = {
-        enabled = true, -- Включаем автоформатирование при сохранении
+        enabled = true,
         allow_filetypes = {
           "python",
           "json",
@@ -34,10 +61,10 @@ return {
           "cpp",
           "javascript",
           "typescript",
-          "lua"
+          "lua",
         },
       },
-      timeout_ms = 3000, -- Увеличиваем таймаут для тяжелых форматеров (например, Java)
+      timeout_ms = 3000,
     },
   },
 }
