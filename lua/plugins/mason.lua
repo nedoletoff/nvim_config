@@ -4,28 +4,30 @@ return {
   {
     "jay-babu/mason-nvim-dap.nvim",
     opts = function(_, opts)
-      opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed, {
-        "python",                          -- debugpy
-        "bash",                            -- bash-debug-adapter
-        "go",                              -- delve
-        "javadbg", "javatest",             -- Java
-        "codelldb",                        -- C++
-        "js",                              -- js-debug-adapter
+      opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed or {}, {
+        "python",       -- debugpy
+        "bash",         -- bash-debug-adapter
+        "go",           -- delve
+        "javadbg", "javatest", -- Java
+        "codelldb",     -- C++
+        "js",           -- js-debug-adapter
       })
+      -- Не падать, если не удалось установить
+      opts.automatic_installation = false
     end,
   },
-  -- Форматеры и линтеры (устанавливаются через mason напрямую)
+  -- Форматтеры и линтеры
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    opts = function(_, opts)
-      opts.ensure_installed = require("astrocore").list_insert_unique(opts.ensure_installed or {}, {
+    opts = {
+      ensure_installed = {
         -- Python
         "black", "isort",
         -- JSON / YAML / Docker
         "jq", "hadolint",
         -- Bash
         "shellcheck", "shfmt",
-        -- Go (goimports отдельно, т.к. не покрыт pack.go через mason-tool-installer)
+        -- Go (устанавливаются автоматически при наличии Go)
         "golangci-lint", "gofumpt", "goimports",
         -- Java
         "google-java-format",
@@ -33,7 +35,10 @@ return {
         "cpplint",
         -- JS/TS
         "prettier", "eslint_d",
-      })
-    end,
+      },
+      -- Автоматически устанавливать при запуске (soft fail - не падать)
+      auto_update = false,
+      run_on_start = true,
+    },
   },
 }
