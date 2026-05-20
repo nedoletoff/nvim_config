@@ -95,6 +95,50 @@ return {
 
 Никаких конфликтов null-ls больше нет!
 
+## Новая фича: GetIDE - умная установка инструментов
+
+Теперь можно устанавливать все необходимые инструменты для языка одной командой!
+
+### Использование:
+
+```vim
+" Показать доступные языки
+:GetIDE list
+
+" Установить инструменты для Go
+:GetIDE install go
+
+" Установить инструменты для Python
+:GetIDE install python
+```
+
+### Поддерживаемые языки:
+
+- **go**: gopls + goimports + gofumpt + debugging
+- **python**: pyright + ruff + black + debugpy
+- **rust**: rust-analyzer + rustfmt + clippy
+- **lua**: lua_ls + stylua
+- **typescript**: ts_ls + eslint + prettier
+- **cpp**: clangd + clang-format + debugging
+- **docker**: dockerls + hadolint
+- **yaml**: yamlls + yamllint
+- **json**: jsonls
+- **html**: html + cssls + tailwindcss + prettier
+- **bash**: bashls + shellcheck + shfmt
+
+### Что GetIDE делает:
+
+✓ Устанавливает LSP серверы
+✓ Устанавливает форматтеры и линтеры
+✓ Настраивает отладчики (DAP)
+✓ Устанавливает Treesitter парсеры
+✓ Показывает прогресс установки
+
+### Тихий режим
+
+Конфигурация теперь работает в тихом режиме - не показывает кучу уведомлений при запуске!
+Все надоедливые сообщения Mason и lspconfig отфильтрованы автоматически.
+
 ## Дополнительные плагины
 
 ### Actually Doom (actually-doom.lua)
