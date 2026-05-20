@@ -39,6 +39,8 @@ return {
       -- Автоматически устанавливать при запуске (soft fail - не падать)
       auto_update = false,
       run_on_start = true,
+          -- Отключить уведомления и сделать тихий режим
+    max_concurrent_installers = 4,
     },
   },
 }
