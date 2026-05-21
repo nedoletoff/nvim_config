@@ -153,6 +153,106 @@ return {
 
 ### Jinja Template Support (jinja.lua)
 
+
+## 📚 Горячие клавиши и команды
+
+### 🎯 Leader key
+
+В этой конфигурации `<Leader>` = `Пробел` (Space)
+
+### 🔧 Git команды (Gitsigns)
+
+Все Git команды начинаются с `<Space>g`:
+
+#### Навигация по изменениям:
+- `]h` - следующее изменение (hunk)
+- `[h` - предыдущее изменение
+
+#### Просмотр и откат изменений:
+- **`<Space>gh`** - **Preview hunk** - показать изменения в popup окне
+- **`<Space>gp`** - **Preview hunk inline** - показать изменения прямо в коде  
+- **`<Space>gr`** - **Reset hunk** - **ОТКАТИТЬ изменения текущего блока** ⚠️
+- **`<Space>gR`** - **Reset buffer** - откатить весь файл к последнему коммиту
+- `<Space>gs` - Stage hunk - добавить изменения в stage
+- `<Space>gS` - Stage buffer - добавить весь файл в stage
+- `<Space>gu` - Undo stage hunk - отменить stage
+
+#### Git информация:
+- `<Space>gb` - **Git blame** - показать кто и когда изменил строку
+- `<Space>gB` - Toggle line blame - включить/выключить постоянный показ blame
+- `<Space>gd` - Git diff - показать diff всего файла
+
+#### Git UI:
+- `<Space>gg` - Открыть LazyGit (если установлен)
+- `<Space>gt` - Git status
+- `<Space>gc` - Git commits (repository) 
+- `<Space>gC` - Git commits (current file)
+
+### 📝 Редактирование
+
+#### Вход/выход из режимов:
+- `jj` - выход из Insert mode в Normal mode
+- `i` / `a` - войти в Insert mode
+- `v` - Visual mode
+- `V` - Visual Line mode
+
+#### Копирование/вставка:
+- `y` + motion - копировать (работает с y, p как обычно в Vim)
+- `p` - вставить после курсора
+- `P` - вставить перед курсором
+- **`Ctrl+C`** (visual mode) - копировать в системный буфер (работает через SSH)
+- **`Ctrl+V`** (normal/insert) - вставить из системного буфера
+- **`Ctrl+X`** (visual mode) - вырезать в системный буфер
+
+### 🔍 Поиск и навигация
+
+- `<Space>ff` - Find files
+- `<Space>fw` - Live grep (поиск в файлах)
+- `<Space>fb` - Find buffers
+- `<Space>fh` - Find help
+- `<Space>fo` - Find old files (history)
+
+### 💻 LSP (Language Server)
+
+- `gd` - Go to definition
+- `gr` - Go to references  
+- `K` - Hover documentation
+- `<Space>lr` - LSP rename
+- `<Space>la` - Code actions
+- `[d` - Previous diagnostic
+- `]d` - Next diagnostic
+
+### 🛠️ GetIDE - Установка инструментов
+
+`:GetIDE list` - показать доступные языки
+`:GetIDE install <язык>` - установить инструменты для языка
+
+Пример:
+```vim
+:GetIDE install go
+:GetIDE install python
+:GetIDE install rust
+```
+
+### 📦 Управление плагинами
+
+- `:Lazy` - открыть Lazy UI
+- `:Lazy sync` - обновить плагины
+- `:Lazy clean` - удалить неиспользуемые
+
+### 🔨 Mason
+
+- `:Mason` - открыть Mason UI для установки LSP серверов
+- `:MasonUpdate` - обновить registry
+
+---
+
+## 💡 Полезные советы
+
+1. **Откат изменений Git**: Поставьте курсор на изменённую строку и нажмите `Пробел + g + r`
+2. **Просмотр изменений**: `Пробел + g + h` покажет что изменилось
+3. **Навигация**: Используйте `]h` и `[h` для быстрого перехода между изменениями
+4. **Which-key**: Нажмите `Пробел` и подождите секунду - появится меню со всеми доступными командами
 Добавляет поддержку Jinja2 темплетов (файлы `.j2` и `*.yaml.j2`) с LSP и подсветкой синтаксиса.
 
 ## Лицензия
