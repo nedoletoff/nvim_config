@@ -24,7 +24,7 @@ return {
 
       -- Keymaps for explicit clipboard operations
       -- Ctrl+C in visual mode - copy to system clipboard via OSC52
-      vim.keymap.set("v", "<C-c>", require("osc52").copy_visual, { desc = "Copy to clipboard (OSC52)" })
+            vim.keymap.set("v", "<C-c>", function() require("osc52").copy_visual() end, { desc = "Copy to clipboard (OSC52)" })
       
       -- Ctrl+X in visual mode - cut to system clipboard
       vim.keymap.set("v", "<C-x>", '"+x', { desc = "Cut to clipboard" })
@@ -32,6 +32,6 @@ return {
       -- Ctrl+V in normal/insert mode - paste from system clipboard
       vim.keymap.set("n", "<C-v>", '"+p', { desc = "Paste from clipboard" })
       vim.keymap.set("i", "<C-v>", '<C-r>+', { desc = "Paste from clipboard" })
-    end,
+        end,
   },
 }
