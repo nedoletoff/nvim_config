@@ -83,6 +83,7 @@ return {
           i = {
       -- exit insert mode with jj
       ["jj"] = { "<Esc>", desc = "Exit insert mode" },
+            ["jk"] = false, -- disable jk escape (jj is enough)
     },
     },
   },
