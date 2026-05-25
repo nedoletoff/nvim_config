@@ -1,39 +1,32 @@
--- Clipboard provider for SSH/Server environments
--- Uses OSC 52 escape sequences - works in tmux, SSH, and headless servers
--- Does NOT require X11, Wayland, or any graphical environment
-return {
-  {
-    "ojroques/nvim-osc52",
-    config = function()
-      require("osc52").setup({
-        max_length = 0,  -- Maximum length of selection (0 for no limit)
-        silent = true,   -- Disable message on successful copy
-        trim = false,    -- Trim text before copy
-      })
+-- Clipboard via OSC 52 for SSH/headless servers
+-- Requires Neovim 0.10+ (built-in osc52 support, no extra plugin needed)
+-- Works over SSH, inside tmux, Docker, without X11 or Wayland.
+--
+-- HOW IT WORKS:
+--   vim.g.clipboard points nvim's "+" and "*" registers at the built-in
+--   OSC 52 provider. Combined with clipboard=unnamedplus, plain `y`/`p`
+--   use the system clipboard transparently.
+--
+-- TMUX NOTE:
+--   Add to ~/.tmux.conf:  set -g set-clipboard on
+--   and use a terminal that supports OSC 52 (iTerm2, WezTerm, kitty,
+--   Windows Terminal, most modern terminals).
 
-      -- Auto-copy to OSC52 on every yank (works over SSH, in tmux, etc.)
-      -- OSC52 sends clipboard data via terminal escape sequences,
-      -- so it works without X11 or any graphical clipboard tool.
-      vim.api.nvim_create_autocmd("TextYankPost", {
-        callback = function()
-          if vim.v.event.operator == "y" and vim.v.event.regname == "" then
-            require("osc52").copy_register("")
-          end
-        end,
-      })
-
-      -- Keymaps for clipboard operations
-      -- <Leader>y in normal mode - copy current line via OSC52
-      vim.keymap.set("n", "<Leader>y", function() require("osc52").copy_operator() end,
-        { expr = true, desc = "Copy to clipboard (OSC52)" })
-
-      -- <Leader>y in visual mode - copy selection via OSC52
-      vim.keymap.set("v", "<Leader>y", function() require("osc52").copy_visual() end,
-        { desc = "Copy selection to clipboard (OSC52)" })
-
-      -- NOTE: Paste from clipboard is not supported over pure SSH/OSC52.
-      -- Use the terminal's paste (Shift+Insert or right-click) or
-      -- the unnamed register p/P after yanking within the same session.
-    end,
+vim.g.clipboard = {
+  name = "OSC 52",
+  copy = {
+    ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+    ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
+  },
+  paste = {
+    ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
+    ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
   },
 }
+
+-- Make all yank/paste use the system clipboard register by default
+-- so that plain `y`, `yy`, `Y`, `p`, `P` all go through OSC 52
+vim.opt.clipboard = "unnamedplus"
+
+-- This file has no lazy.nvim plugins to declare - config is applied directly
+return {}
