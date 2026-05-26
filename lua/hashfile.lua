@@ -147,4 +147,73 @@ function M.pick(filepath)
   end)
 end
 
+--- Вычислить хеш файла и вернуть результат в кодировке Base64.
+--- Использует compute_hash внутри, затем пропускает через base64.
+---@param filepath string абсолютный путь к файлу
+---@param cmd_tpl string шаблон команды с %s вместо пути
+---@return string|nil base64-строка или nil при ошибке
+local function compute_hash_b64(filepath, cmd_tpl)
+  local safe_path = vim.fn.shellescape(filepath)
+  local cmd = string.format(cmd_tpl, safe_path)
+  -- Получаем raw бинарный дайджест и сразу кодируем в base64
+  local b64_cmd = string.format(
+    "%s 2>/dev/null | awk '{print $1}' | xxd -r -p | base64 | tr -d '\n'",
+    cmd
+  )
+  local handle = io.popen(b64_cmd)
+  if not handle then return nil end
+  local result = handle:read("*l")
+  handle:close()
+  if not result or result == "" then return nil end
+  return result
+end
+
+--- Запустить picker выбора алгоритма через vim.ui.select,
+--- затем вычислить хеш в Base64 и показать результат.
+---@param filepath? string путь к файлу (по умолчанию текущий буфер)
+function M.pick_base64(filepath)
+  filepath = filepath or vim.api.nvim_buf_get_name(0)
+
+  if filepath == "" then
+    vim.notify("hashfile: буфер не привязан к файлу", vim.log.levels.WARN, { title = "hashfile" })
+    return
+  end
+
+  if vim.fn.filereadable(filepath) ~= 1 then
+    vim.notify("hashfile: файл недоступен: " .. filepath, vim.log.levels.ERROR, { title = "hashfile" })
+    return
+  end
+
+  local items = vim.tbl_map(function(a) return a.label end, ALGORITHMS)
+
+  vim.ui.select(items, {
+    prompt = "Выберите алгоритм (результат в Base64):",
+    telescope = { layout_config = { width = 0.4, height = 0.5 } },
+  }, function(choice)
+    if not choice then return end
+
+    local algo
+    for _, a in ipairs(ALGORITHMS) do
+      if a.label == choice then
+        algo = a
+        break
+      end
+    end
+    if not algo then return end
+
+    vim.defer_fn(function()
+      local b64 = compute_hash_b64(filepath, algo.cmd)
+      if not b64 then
+        vim.notify(
+          string.format("hashfile: не удалось вычислить %s (base64)\n(утилита не найдена или ошибка)", algo.label),
+          vim.log.levels.ERROR,
+          { title = "hashfile" }
+        )
+        return
+      end
+      show_result(algo.label .. " [Base64]", b64, filepath)
+    end, 10)
+  end)
+end
+
 return M
