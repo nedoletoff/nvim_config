@@ -1,3 +1,38 @@
+-- Хелпер для хранения истории SSH-подключений
+local ssh_history = {}
+
+local function add_to_history(target)
+  if not target or target == "" then return end
+  for i, v in ipairs(ssh_history) do
+    if v == target then
+      table.remove(ssh_history, i)
+      break
+    end
+  end
+  table.insert(ssh_history, 1, target)
+  if #ssh_history > 10 then
+    table.remove(ssh_history, 11)
+  end
+end
+
+local function get_ssh_target(callback)
+  if #ssh_history == 0 then
+    vim.ui.input({ prompt = "SSH адрес (user@host): " }, callback)
+  else
+    local options = vim.list_extend({ "[новое подключение]" }, ssh_history)
+    vim.ui.select(options, {
+      prompt = "Выберите SSH адрес или введите новый:",
+    }, function(choice)
+      if not choice then return end
+      if choice == "[новое подключение]" then
+        vim.ui.input({ prompt = "SSH адрес (user@host): " }, callback)
+      else
+        callback(choice)
+      end
+    end)
+  end
+end
+
 return {
   -- ===== Удалённая работа по SSH =====
   --
@@ -5,19 +40,19 @@ return {
   --    удалённые файлы как буфер (аналог WinSCP). Поддерживает ключи и пароль.
   --    Маппинги: <leader>ss (SSH браузер), <leader>sc (выбрать из ~/.ssh/config)
   --
-  -- 2. Терминал:
+  -- 2. Терминал (с историей последних подключений):
   --    <leader>st — по паролю  (ssh user@host)
   --    <leader>sk — по ключу   (ssh -i ~/path/to/key user@host)
   --
   -- 3. Редактирование:
   --    <leader>se — открыть ~/.ssh/config для редактирования
   --
-  -- Хранение подключений: ~/.ssh/config (стандартный формат, читается всеми SSH-утилитами)
+  -- Хранение подключений: ~/.ssh/config (стандартный формат) + история в памяти
   {
     "stevearc/oil.nvim",
     cmd = { "Oil" },
     keys = {
-      -- Браузер файлов по SSH (запрашивает user@host вручную)
+      -- Браузер файлов по SSH
       {
         "<leader>ss",
         function()
@@ -29,7 +64,7 @@ return {
         end,
         desc = "SSH: браузер файлов (oil-ssh)",
       },
-      -- Выбор из сохранённых хостов из ~/.ssh/config
+      -- Выбор из ~/.ssh/config
       {
         "<leader>sc",
         function()
@@ -74,29 +109,31 @@ return {
         end,
         desc = "SSH: редактировать ~/.ssh/config",
       },
-      -- Терминал по паролю
+      -- Терминал по паролю (с историей)
       {
         "<leader>st",
         function()
-          vim.ui.input({ prompt = "SSH адрес (user@host): " }, function(target)
+          get_ssh_target(function(target)
             if target and target ~= "" then
+              add_to_history(target)
               vim.cmd("tabnew | terminal ssh " .. target)
             end
           end)
         end,
         desc = "SSH: открыть терминал по паролю",
       },
-      -- Терминал по ключу
+      -- Терминал по ключу (с историей)
       {
         "<leader>sk",
         function()
-          vim.ui.input({ prompt = "SSH адрес (user@host): " }, function(target)
+          get_ssh_target(function(target)
             if not target or target == "" then return end
             vim.ui.input({
               prompt = "Путь к ключу (~/.ssh/id_rsa): ",
               default = "~/.ssh/id_rsa",
             }, function(keypath)
               if not keypath or keypath == "" then return end
+              add_to_history(target)
               local expanded = vim.fn.expand(keypath)
               vim.cmd("tabnew | terminal ssh -i " .. expanded .. " " .. target)
             end)
@@ -106,13 +143,10 @@ return {
       },
     },
     opts = {
-      -- oil заменяет netrw для открытия директорий
       default_file_explorer = true,
-      -- Показывать скрытые файлы
       view_options = {
         show_hidden = true,
       },
-      -- Отключить предупреждение про netrw scp (oil-ssh заменяет)
       silence_scp_warning = true,
     },
   },
