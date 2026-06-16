@@ -3,19 +3,20 @@
 -- Works over SSH, inside tmux, Docker, without X11 or Wayland.
 --
 -- HOW IT WORKS:
---   vim.g.clipboard points nvim's "+" and "*" registers at the built-in
---   OSC 52 provider. Combined with clipboard=unnamedplus, plain `y`/`p`
---   use the system clipboard transparently.
---
--- NOTE: paste is intentionally left as nil (not using OSC 52 paste).
---   OSC 52 paste causes "Waiting for OSC 52 response" hang in terminals
---   that don't support terminal clipboard read (most SSH terminals).
---   Neovim will fall back to its internal register, which works fine.
+--   copy  -> OSC 52: yank пушает текст в системный буфер терминала через OSC 52
+--   paste -> читается из внутреннего регистра Neovim (без OSC 52),
+--         так как OSC 52 paste вызывает зависание "Waiting for OSC 52 response"
+--         в большинстве терминалов через SSH.
 --
 -- TMUX NOTE:
 --   Add to ~/.tmux.conf:  set -g set-clipboard on
 --   and use a terminal that supports OSC 52 (iTerm2, WezTerm, kitty,
 --   Windows Terminal, most modern terminals).
+
+-- Функция вставки из внутреннего регистра Neovim
+local function paste_from_register()
+  return vim.fn.getreg('"'), vim.fn.getregtype('"')
+end
 
 vim.g.clipboard = {
   name = "OSC 52",
@@ -24,8 +25,8 @@ vim.g.clipboard = {
     ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
   },
   paste = {
-    ["+"] = nil,
-    ["*"] = nil,
+    ["+"] = paste_from_register,
+    ["*"] = paste_from_register,
   },
 }
 
