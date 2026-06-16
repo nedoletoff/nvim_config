@@ -7,6 +7,11 @@
 --   OSC 52 provider. Combined with clipboard=unnamedplus, plain `y`/`p`
 --   use the system clipboard transparently.
 --
+-- NOTE: paste is intentionally left as nil (not using OSC 52 paste).
+--   OSC 52 paste causes "Waiting for OSC 52 response" hang in terminals
+--   that don't support terminal clipboard read (most SSH terminals).
+--   Neovim will fall back to its internal register, which works fine.
+--
 -- TMUX NOTE:
 --   Add to ~/.tmux.conf:  set -g set-clipboard on
 --   and use a terminal that supports OSC 52 (iTerm2, WezTerm, kitty,
@@ -19,8 +24,8 @@ vim.g.clipboard = {
     ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
   },
   paste = {
-    ["+"] = require("vim.ui.clipboard.osc52").paste("+"),
-    ["*"] = require("vim.ui.clipboard.osc52").paste("*"),
+    ["+"] = nil,
+    ["*"] = nil,
   },
 }
 
