@@ -13,9 +13,12 @@
 --   and use a terminal that supports OSC 52 (iTerm2, WezTerm, kitty,
 --   Windows Terminal, most modern terminals).
 
--- Функция вставки из внутреннего регистра Neovim
+-- Функция вставки из внутреннего регистра Neovim.
+-- Neovim ожидает таблицу { lines_table, regtype }, а не два значения.
 local function paste_from_register()
-  return vim.fn.getreg('"'), vim.fn.getregtype('"')
+  local text = vim.fn.getreg('"')
+  local regtype = vim.fn.getregtype('"')
+  return { vim.split(text, "\n"), regtype }
 end
 
 vim.g.clipboard = {
