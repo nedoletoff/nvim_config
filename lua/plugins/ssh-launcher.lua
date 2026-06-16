@@ -5,9 +5,9 @@ return {
   --    файлы открываются как локальные, поддерживает ключи и пароль.
   --    Маппинги: <leader>ss / sd / se / sf / sg
   --
-  -- 2. Терминал как PuTTY (<leader>st): открывает интерактивный SSH-шелл
-  --    в встроенном терминале Neovim. Спрашивает user@host, запускает ssh без ключей
-  --    (терминал сам запросит пароль если нужно).
+  -- 2. Терминал как PuTTY:
+  --    <leader>st — по паролю  (ssh user@host)
+  --    <leader>sk — по ключу   (ssh -i ~/path/to/key user@host)
   {
     "nosduco/remote-sshfs.nvim",
     dependencies = {
@@ -28,7 +28,7 @@ return {
       { "<leader>se", function() require("remote-sshfs.api").edit() end,       desc = "SSH: редактировать ~/.ssh/config" },
       { "<leader>sf", "<cmd>RemoteSSHFSFindFiles<cr>",                         desc = "SSH: поиск файлов на сервере" },
       { "<leader>sg", "<cmd>RemoteSSHFSLiveGrep<cr>",                          desc = "SSH: live grep на сервере" },
-      -- Интерактивный терминал (как PuTTY)
+      -- Терминал по паролю
       {
         "<leader>st",
         function()
@@ -38,7 +38,25 @@ return {
             end
           end)
         end,
-        desc = "SSH: открыть терминал (PuTTY-режим)",
+        desc = "SSH: открыть терминал по паролю",
+      },
+      -- Терминал по ключу
+      {
+        "<leader>sk",
+        function()
+          vim.ui.input({ prompt = "SSH адрес (user@host): " }, function(target)
+            if not target or target == "" then return end
+            vim.ui.input({
+              prompt = "Путь к ключу (~/. ssh/id_rsa): ",
+              default = "~/.ssh/id_rsa",
+            }, function(keypath)
+              if not keypath or keypath == "" then return end
+              local expanded = vim.fn.expand(keypath)
+              vim.cmd("tabnew | terminal ssh -i " .. expanded .. " " .. target)
+            end)
+          end)
+        end,
+        desc = "SSH: открыть терминал по ключу",
       },
     },
     config = function()
