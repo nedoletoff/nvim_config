@@ -1,4 +1,7 @@
--- Customize LSP configuration
+-- lua/plugins/lspconfig.lua
+-- LSP configuration for mason-lspconfig v2+ (Neovim 0.11+)
+-- handlers/setup() API removed; mason-lspconfig now uses automatic_enable
+-- Server configs go via astrolsp opts.config -> vim.lsp.config()
 
 ---@type LazySpec
 return {
@@ -6,22 +9,22 @@ return {
     "AstroNvim/astrolsp",
     ---@type AstroLSPOpts
     opts = {
-      -- Configuration for built-in LSP handlers
+      -- Server-specific settings are configured here.
+      -- astrolsp passes them to vim.lsp.config() automatically.
       config = {
-        -- Handlers will be set up by mason-lspconfig
+        -- Example: per-server overrides (add as needed)
+        -- lua_ls = {
+        --   settings = { Lua = { diagnostics = { globals = { "vim" } } } },
+        -- },
       },
     },
   },
   {
-    "williamboman/mason-lspconfig.nvim",
+    "mason-org/mason-lspconfig.nvim",
     opts = {
-      -- Handlers will be configured by GetIDE system
-      handlers = {
-        -- Default handler for all servers
-        function(server_name)
-          require("lspconfig")[server_name].setup({})
-        end,
-      },
+      -- automatic_enable = true by default in v2:
+      -- automatically calls vim.lsp.enable() for every installed server.
+      -- No handlers needed anymore.
     },
   },
 }
