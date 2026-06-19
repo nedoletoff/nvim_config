@@ -1,5 +1,5 @@
 -- Plugin: project-to-md
--- Keybinding: <Leader>pm
+-- Keybinding: <Leader>md
 -- Auto-downloads project_to_md.py from GitHub on first use
 -- Directory: cwd, Output: <dirname>_<timestamp>.md in cwd
 
@@ -56,6 +56,6 @@ return {
       end)
     end
 
-    vim.keymap.set("n", "<Leader>pm", run_project_to_md, { desc = "Project to Markdown", noremap = true, silent = true })
+    vim.keymap.set("n", "<Leader>md", run_project_to_md, { desc = "Project to Markdown", noremap = true, silent = true })
   end,
 }
