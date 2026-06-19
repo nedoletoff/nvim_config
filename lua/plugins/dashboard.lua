@@ -83,6 +83,7 @@ local function starfield_section()
 
 return {
     {
+        "folke/snacks.nvim", -- <-- ЭТА СТРОКА БЫЛА УПУЩЕНА
         opts = function(_, opts)
             opts.dashboard = opts.dashboard or {}
             opts.dashboard.sections = opts.dashboard.sections or {}
