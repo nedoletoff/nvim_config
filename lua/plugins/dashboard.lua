@@ -83,46 +83,47 @@ local function starfield_section()
 
 return {
     {
-        "folke/snacks.nvim",
         opts = function(_, opts)
             opts.dashboard = opts.dashboard or {}
             opts.dashboard.sections = opts.dashboard.sections or {}
 
-                  init_stars()
+            init_stars()
 
-            -- Starfield section: returns text lines, snacks renders them
-      local starfield = {
-        padding = 1,
-                text = function()
-                    return starfield_section()
-                  end,
-              }
+            -- Генерируем первый статичный кадр (таблицу, а не функцию)
+            local starfield = {
+                padding = 1,
+                text = starfield_section(),
+            }
 
-            -- Add starfield before existing sections
+            -- Добавляем секцию в дашборд
             table.insert(opts.dashboard.sections, 1, starfield)
 
-            -- Auto-stop timer when leaving dashboard
+            -- Остановка таймера при закрытии дашборда
             vim.api.nvim_create_autocmd("BufLeave", {
-                  pattern = "snacks_dashboard",
-                  once = false,
-                  callback = stop_timer,
-                })
+                pattern = "snacks_dashboard",
+                once = false,
+                callback = stop_timer,
+            })
 
-            -- Start animation timer when dashboard opens
+            -- Запуск таймера при открытии дашборда
             vim.api.nvim_create_autocmd("BufEnter", {
-                  pattern = "snacks_dashboard",
-                  once = false,
-                  callback = function()
-                      stop_timer()
-                      timer = vim.uv.new_timer()
-                      timer:start(0, 120, vim.schedule_wrap(function()
-                              local ok, dashboard = pcall(require, "snacks.dashboard")
-                              if ok and dashboard and dashboard.update then
-                                  dashboard.update()
-                                end
-                            end))
-                    end,
-                })
-          end,
+                pattern = "snacks_dashboard",
+                once = false,
+                callback = function()
+                    stop_timer()
+                    timer = vim.uv.new_timer()
+                    timer:start(0, 120, vim.schedule_wrap(function()
+                        -- Перезаписываем текст секции новым кадром
+                        starfield.text = starfield_section()
+                        
+                        -- Обновляем UI
+                        local ok, dashboard = pcall(require, "snacks.dashboard")
+                        if ok and dashboard and dashboard.update then
+                            dashboard.update()
+                        end
+                    end))
+                end,
+            })
+        end,
       },
   }
