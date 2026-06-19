@@ -2,7 +2,7 @@
 -- Stars cycle through brightness states to simulate twinkling
 
 local glyphs = { " ", "·", "˙", "⋅", "-", "✶", "✷", "-", "⋅", "˙", "·", " " }
-local ROWS = 40
+local ROWS = 15
 local COLS = 60
 local NUM_STARS = 20
 
