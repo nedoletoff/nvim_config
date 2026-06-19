@@ -4,7 +4,7 @@
 local M = {}
 
 -- Star brightness levels (dim -> bright -> dim)
-local glyphs = { " ", "·", "˙", "⋅", "- ", "*", "✶", "✷", "- ", "⋅", "˙", "·", " " }
+local glyphs = { " ", "·", "˙", "⋅", "- ", "✶", "✷", "- ", "⋅", "˙", "·", " " }
 -- Canvas: rows x cols of stars, each with a random phase offset
 local ROWS = 4
 local COLS = 60
