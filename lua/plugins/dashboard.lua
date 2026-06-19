@@ -83,21 +83,23 @@ local function starfield_section()
 
 return {
     {
-        "folke/snacks.nvim", -- <-- ЭТА СТРОКА БЫЛА УПУЩЕНА
+        "folke/snacks.nvim",
         opts = function(_, opts)
             opts.dashboard = opts.dashboard or {}
             opts.dashboard.sections = opts.dashboard.sections or {}
 
             init_stars()
 
-            -- Генерируем первый статичный кадр (таблицу, а не функцию)
-            local starfield = {
-                padding = 1,
-                text = starfield_section(),
-            }
+            -- Передаем функцию, которая возвращает конфигурацию секции КАЖДЫЙ РАЗ при обновлении
+            local starfield_gen = function()
+                return {
+                    padding = 1,
+                    text = starfield_section(),
+                }
+            end
 
-            -- Добавляем секцию в дашборд
-            table.insert(opts.dashboard.sections, 1, starfield)
+            -- Добавляем функцию-генератор в секции (snacks поддерживает функции как элементы)
+            table.insert(opts.dashboard.sections, 1, starfield_gen)
 
             -- Остановка таймера при закрытии дашборда
             vim.api.nvim_create_autocmd("BufLeave", {
@@ -114,17 +116,15 @@ return {
                     stop_timer()
                     timer = vim.uv.new_timer()
                     timer:start(0, 120, vim.schedule_wrap(function()
-                        -- Перезаписываем текст секции новым кадром
-                        starfield.text = starfield_section()
-                        
-                        -- Обновляем UI
-                        local ok, dashboard = pcall(require, "snacks.dashboard")
-                        if ok and dashboard and dashboard.update then
-                            dashboard.update()
+                        -- Вместо ручного изменения свойств, просим snacks обновить весь дашборд.
+                        -- При обновлении он вызовет функцию starfield_gen() и получит новый кадр.
+                        local ok, snacks = pcall(require, "snacks")
+                        if ok and snacks.dashboard then
+                            snacks.dashboard.update()
                         end
                     end))
                 end,
             })
         end,
-      },
-  }
+    },
+}
