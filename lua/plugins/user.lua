@@ -25,7 +25,6 @@ return {
       dashboard = {
         preset = {
           header = table.concat({
-"	                                           ",
 "	          ▒▓▓▓▓▓█    ▒▓▓▓█     ▒▓▓█        ",
 "	            ▒▓█     ▒▓▌   █   ▒▓▌ ▓█       ",
 "	           ▒▓█     ▒▓▌    █  ▒▓▌   ▓█      ",
