@@ -1,3 +1,17 @@
+-- Suppress lspconfig deprecation spam BEFORE lazy loads plugins
+-- (quiet.lua переопределяет notify слишком поздно для startup-варнингов)
+local _original_notify = vim.notify
+vim.notify = function(msg, level, opts)
+  local suppress = {
+    "lspconfig.*deprecated",
+    "Feature will be removed in nvim%-lspconfig",
+  }
+  for _, pattern in ipairs(suppress) do
+    if type(msg) == "string" and msg:match(pattern) then return end
+  end
+  return _original_notify(msg, level, opts)
+end
+
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
