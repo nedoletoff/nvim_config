@@ -3,10 +3,38 @@
 --
 -- Маппинги:
 --   <Leader>uu  — Full upgrade (git pull конфига + обновление nvim)
---   <Leader>ug  — Git pull конфига (:AstroUpdate)
---   <Leader>un  — Обновнить Neovim (скачать новый бинарник)
+--   <Leader>ug  — Обновить конфиг (git pull)
+--   <Leader>un  — Обновить Neovim (скачать новый бинарник)
 --
 -- Команды: :NvimUpdate  :ConfigUpdate  :FullUpgrade
+
+-- Хелпер: открывает floating terminal и запускает bash-скрипт
+local function open_float(title, script, cmd_name)
+  local buf = vim.api.nvim_create_buf(false, true)
+  local width = math.floor(vim.o.columns * 0.82)
+  local height = math.floor(vim.o.lines * 0.55)
+  vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = math.floor((vim.o.columns - width) / 2),
+    row = math.floor((vim.o.lines - height) / 2),
+    style = "minimal",
+    border = "rounded",
+    title = " " .. title .. " ",
+    title_pos = "center",
+  })
+  vim.fn.termopen({ "bash", "-c", script }, {
+    on_exit = function(_, code)
+      if code == 0 then
+        vim.notify(cmd_name .. " completed.", vim.log.levels.INFO, { title = cmd_name })
+      else
+        vim.notify(cmd_name .. " failed (exit " .. code .. ").", vim.log.levels.ERROR, { title = cmd_name })
+      end
+    end,
+  })
+  vim.cmd("startinsert")
+end
 
 ---@type LazySpec
 return {
@@ -16,13 +44,13 @@ return {
     opts = {
       commands = {
 
-        -- Обновление бинарника Neovim
+        -- :NvimUpdate — обновить бинарник nvim
         NvimUpdate = {
           function()
             local current = tostring(vim.version())
             local script = table.concat({
               "set -e",
-              "echo '━━━ Neovim Binary Updater ━━━'",
+              "echo '━━━ Neovim Binary Update ━━━'",
               "echo 'Current: " .. current .. "'",
               "TMP=$(mktemp -d)",
               "ARCHIVE=nvim-linux-x86_64.tar.gz",
@@ -34,55 +62,52 @@ return {
               "sudo tar -C /opt -xzf $TMP/$ARCHIVE",
               "sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim",
               "rm -rf $TMP",
-              "echo ''",
               "NEW=$(/opt/nvim-linux-x86_64/bin/nvim --version | head -1)",
-              "echo \"Done! New version: $NEW\"",
+              "echo ''",
+              "echo \"✓ Done! New: $NEW\"",
               "echo 'Restart Neovim to apply.'",
             }, "\n")
-            require("plugins.nvim-updater").open_float(" Neovim Update ", script, "NvimUpdate")
+            open_float("Neovim Update", script, "NvimUpdate")
           end,
           desc = "Update Neovim binary to latest stable",
         },
 
-        -- Обновление конфига через git pull
+        -- :ConfigUpdate — git pull конфига
         ConfigUpdate = {
           function()
             local config_path = vim.fn.stdpath("config")
             local script = table.concat({
               "set -e",
               "echo '━━━ Config Git Pull ━━━'",
-              "cd " .. config_path,
+              "cd " .. vim.fn.shellescape(config_path),
               "echo \"Path: $PWD\"",
               "git fetch origin",
               "git status --short",
               "git pull --rebase origin $(git branch --show-current)",
               "echo ''",
-              "echo '✓ Config updated. Run :Lazy sync to apply plugin changes.'",
+              "echo '✓ Config updated.'",
+              "echo 'Run :Lazy sync to apply plugin changes.'",
             }, "\n")
-            require("plugins.nvim-updater").open_float(" Config Update ", script, "ConfigUpdate")
+            open_float("Config Update", script, "ConfigUpdate")
           end,
-          desc = "Pull latest config from git",
+          desc = "Pull latest nvim config from git",
         },
 
-        -- Полный апгрейд: git pull + обновление nvim
+        -- :FullUpgrade — git pull + обновление nvim
         FullUpgrade = {
           function()
             local config_path = vim.fn.stdpath("config")
             local current = tostring(vim.version())
             local script = table.concat({
               "set -e",
-              "echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'",
-              "echo '      Full Upgrade'",
-              "echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'",
+              "echo '━━━━━━━━━━━━ Full Upgrade ━━━━━━━━━━━━'",
               "",
-              "echo ''",
-              "echo '[1/2] Pulling config from git...'",
-              "cd " .. config_path,
+              "echo '[1/2] Pulling config...'",
+              "cd " .. vim.fn.shellescape(config_path),
               "git fetch origin",
               "git pull --rebase origin $(git branch --show-current)",
               "echo '✓ Config updated'",
               "",
-              "echo ''",
               "echo '[2/2] Updating Neovim binary...'",
               "echo 'Current: " .. current .. "'",
               "TMP=$(mktemp -d)",
@@ -94,14 +119,13 @@ return {
               "sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim",
               "rm -rf $TMP",
               "NEW=$(/opt/nvim-linux-x86_64/bin/nvim --version | head -1)",
-              "echo '✓ Neovim updated to: '$NEW",
+              "echo '✓ Neovim: '$NEW",
               "",
-              "echo ''",
               "echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'",
               "echo 'Full upgrade complete!'",
               "echo 'Run :Lazy sync then restart Neovim.'",
             }, "\n")
-            require("plugins.nvim-updater").open_float(" Full Upgrade ", script, "FullUpgrade")
+            open_float("Full Upgrade", script, "FullUpgrade")
           end,
           desc = "Full upgrade: git pull config + update Neovim binary",
         },
@@ -109,24 +133,12 @@ return {
 
       mappings = {
         n = {
-          -- which-key группа
-          ["<Leader>u"] = { desc = " Update" },
-          ["<Leader>uu"] = { "<cmd>FullUpgrade<cr>",   desc = "Full upgrade (config + nvim)" },
-          ["<Leader>ug"] = { "<cmd>ConfigUpdate<cr>",  desc = "Update config (git pull)" },
-          ["<Leader>un"] = { "<cmd>NvimUpdate<cr>",    desc = "Update Neovim binary" },
+          ["<Leader>u"]  = { desc = " Update" },
+          ["<Leader>uu"] = { "<cmd>FullUpgrade<cr>",  desc = "Full upgrade (config + nvim)" },
+          ["<Leader>ug"] = { "<cmd>ConfigUpdate<cr>", desc = "Update config (git pull)" },
+          ["<Leader>un"] = { "<cmd>NvimUpdate<cr>",   desc = "Update Neovim binary" },
         },
       },
     },
-  },
-
-  -- Локальный Lua-модуль с хелпером для floating terminal
-  -- (lazy.nvim не загружает его как плагин, это чистый локальный модуль)
-  {
-    dir = vim.fn.stdpath("config"),
-    name = "nvim-updater-lib",
-    lazy = true,
-    config = function()
-      -- Регистрируем хелпер прямо в package (без подгрузки require)
-    end,
   },
 }
