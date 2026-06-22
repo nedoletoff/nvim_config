@@ -1,5 +1,4 @@
--- AstroCore provides a central place to modify mappings, vim options, autocommands, and more!
--- Configuration documentation can be found with `:h astrocore`
+-- AstroCore: глобальные настройки, маппинги и which-key группы
 
 ---@type LazySpec
 return {
@@ -30,8 +29,9 @@ return {
     },
     mappings = {
       n = {
-        ["]b"] = { function() require("astrocore.buffer").nav(vim.v.count1) end, desc = "Next buffer" },
-        ["[b"] = { function() require("astrocore.buffer").nav(-vim.v.count1) end, desc = "Previous buffer" },
+        -- Буферы
+        ["]b"]        = { function() require("astrocore.buffer").nav(vim.v.count1) end,  desc = "Next buffer" },
+        ["[b"]        = { function() require("astrocore.buffer").nav(-vim.v.count1) end, desc = "Prev buffer" },
         ["<Leader>bd"] = {
           function()
             require("astroui.status.heirline").buffer_picker(
@@ -40,6 +40,12 @@ return {
           end,
           desc = "Close buffer from tabline",
         },
+
+        -- which-key группы для пользовательских плагинов
+        -- (AstroNvim регистрирует свои группы сам, здесь только дополнения)
+        ["<Leader>S"]  = { desc = " SSH" },
+        ["<Leader>O"]  = { desc = " Outline" },
+        ["<Leader>U"]  = { desc = " Update" },
       },
       i = {
         ["jj"] = { "<Esc>", desc = "Exit insert mode" },
