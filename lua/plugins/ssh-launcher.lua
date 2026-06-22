@@ -1,7 +1,6 @@
 -- SSH менеджер
--- Группа: <Leader>S (не путать с Session = <Leader>S без цифры)
--- SSH использует префикс <Leader>S + буква (не цифра), поэтому не пересекается
--- с AstroNvim Session (там только <Leader>Sсамавстоятельноординарныекапслочныебуквы)
+-- Группа <Leader>S зарегистрирована в astrocore.lua (через desc)
+-- Не пересекается с AstroNvim Session (<Leader>S без буквы)
 --
 -- <Leader>Sa — Добавить хост в ~/.ssh/config
 -- <Leader>Sc — Подключиться (выбрать из списка)
@@ -113,13 +112,6 @@ return {
         desc = "SSH: редактировать ~/.ssh/config",
       },
     },
-    -- which-key: группа зарегистрируется через init() плагина с именем
-    init = function()
-      local wk = require("which-key")
-      wk.add({
-        { "<Leader>S", group = "󰉥 SSH", icon = "󰉥" },
-      })
-    end,
     opts = {
       default_file_explorer = true,
       view_options = { show_hidden = true },
