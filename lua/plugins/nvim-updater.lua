@@ -2,13 +2,12 @@
 -- Обновление Neovim и конфига прямо из редактора.
 --
 -- Маппинги:
---   <Leader>uu  — Full upgrade (git pull конфига + обновление nvim)
---   <Leader>ug  — Обновить конфиг (git pull)
---   <Leader>un  — Обновить Neovim (скачать новый бинарник)
+--   <Leader>UU  — Full upgrade (git pull конфига + обновление nvim)
+--   <Leader>Ug  — Обновить конфиг (git pull)
+--   <Leader>Un  — Обновить Neovim (скачать новый бинарник)
 --
 -- Команды: :NvimUpdate  :ConfigUpdate  :FullUpgrade
 
--- Хелпер: открывает floating terminal и запускает bash-скрипт
 local function open_float(title, script, cmd_name)
   local buf = vim.api.nvim_create_buf(false, true)
   local width = math.floor(vim.o.columns * 0.82)
@@ -44,7 +43,6 @@ return {
     opts = {
       commands = {
 
-        -- :NvimUpdate — обновить бинарник nvim
         NvimUpdate = {
           function()
             local current = tostring(vim.version())
@@ -72,7 +70,6 @@ return {
           desc = "Update Neovim binary to latest stable",
         },
 
-        -- :ConfigUpdate — git pull конфига
         ConfigUpdate = {
           function()
             local config_path = vim.fn.stdpath("config")
@@ -93,7 +90,6 @@ return {
           desc = "Pull latest nvim config from git",
         },
 
-        -- :FullUpgrade — git pull + обновление nvim
         FullUpgrade = {
           function()
             local config_path = vim.fn.stdpath("config")
@@ -133,10 +129,10 @@ return {
 
       mappings = {
         n = {
-          ["<Leader>u"]  = { desc = " Update" },
-          ["<Leader>uu"] = { "<cmd>FullUpgrade<cr>",  desc = "Full upgrade (config + nvim)" },
-          ["<Leader>ug"] = { "<cmd>ConfigUpdate<cr>", desc = "Update config (git pull)" },
-          ["<Leader>un"] = { "<cmd>NvimUpdate<cr>",   desc = "Update Neovim binary" },
+          ["<Leader>U"]  = { desc = " Update" },
+          ["<Leader>UU"] = { "<cmd>FullUpgrade<cr>",  desc = "Full upgrade (config + nvim)" },
+          ["<Leader>Ug"] = { "<cmd>ConfigUpdate<cr>", desc = "Update config (git pull)" },
+          ["<Leader>Un"] = { "<cmd>NvimUpdate<cr>",   desc = "Update Neovim binary" },
         },
       },
     },
