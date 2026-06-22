@@ -2,6 +2,10 @@
 -- Includes: diagnostics, symbols, todos, blame
 
 return {
+  -- aerial.nvim отключён: использует устаревший treesitter node API (node:start(), node:type())
+  -- который убрали в Neovim 0.11+. Symbol outline работает через hedyhli/outline.nvim.
+  { "stevearc/aerial.nvim", enabled = false },
+
   -- Панель диагностики (trouble.nvim v3)
   {
     "folke/trouble.nvim",
@@ -15,7 +19,7 @@ return {
     opts = { auto_close = true, auto_preview = true },
   },
 
-  -- Дерево символов (hedyhli/outline.nvim)
+  -- Дерево символов — замена aerial (hedyhli/outline.nvim работает через LSP)
   {
     "hedyhli/outline.nvim",
     cmd = { "Outline", "OutlineOpen" },
