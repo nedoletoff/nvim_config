@@ -18,9 +18,9 @@ return {
     },
   },
 
-  -- Symbol outline (активный форк, замена заброшенного simrat39/symbols-outline.nvim)
+  -- Symbol outline (правильное имя репозитория: hedyhli/outline.nvim)
   {
-    "hedyhyry/outline.nvim",
+    "hedyhli/outline.nvim",
     cmd = { "Outline", "OutlineOpen" },
     keys = {
       { "<Leader>o", "<cmd>Outline<cr>", desc = "Toggle Outline" },
