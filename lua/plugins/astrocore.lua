@@ -30,8 +30,8 @@ return {
     mappings = {
       n = {
         -- Буферы
-        ["]b"]        = { function() require("astrocore.buffer").nav(vim.v.count1) end,  desc = "Next buffer" },
-        ["[b"]        = { function() require("astrocore.buffer").nav(-vim.v.count1) end, desc = "Prev buffer" },
+        ["]b"] = { function() require("astrocore.buffer").nav(vim.v.count1) end,  desc = "Next buffer" },
+        ["[b"] = { function() require("astrocore.buffer").nav(-vim.v.count1) end, desc = "Prev buffer" },
         ["<Leader>bd"] = {
           function()
             require("astroui.status.heirline").buffer_picker(
@@ -41,11 +41,24 @@ return {
           desc = "Close buffer from tabline",
         },
 
+        -- Explorer + Outline вместе одной кнопкой
+        -- <Leader>e  — уже открывает/закрывает Explorer (AstroNvim)
+        -- <Leader>o  — переопределяем: открыть Explorer И Outline вместе
+        ["<Leader>o"] = {
+          function()
+            -- Открываем/закрываем файловый дерево
+            require("astrocore").toggle_term_cmd and vim.cmd("Neotree toggle") or vim.cmd("Neotree toggle")
+            -- Открываем/закрываем Outline
+            vim.cmd("Outline")
+          end,
+          desc = "Toggle Explorer + Outline",
+        },
+
         -- which-key группы для пользовательских плагинов
-        -- (AstroNvim регистрирует свои группы сам, здесь только дополнения)
-        ["<Leader>S"]  = { desc = " SSH" },
-        ["<Leader>O"]  = { desc = " Outline" },
-        ["<Leader>U"]  = { desc = " Update" },
+        ["<Leader>S"] = { desc = " SSH" },
+        ["<Leader>U"] = { desc = "󰑙 Update" },
+        ["<Leader>h"] = { desc = "󰯪 Hash" },
+        ["<Leader>m"] = { desc = "󱍘 Make/Export" },
       },
       i = {
         ["jj"] = { "<Esc>", desc = "Exit insert mode" },
