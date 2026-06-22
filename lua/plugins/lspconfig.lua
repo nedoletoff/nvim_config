@@ -1,9 +1,13 @@
 -- lua/plugins/lspconfig.lua
--- Единый конфиг для astrolsp + mason-lspconfig v2+
--- (объединён с astrolsp.lua во избежание дублирования плагина)
+-- Neovim 0.11+ использует vim.lsp.config() напрямую, без nvim-lspconfig.
+-- mason-lspconfig v2 автоматически вызывает vim.lsp.enable() для установленных серверов.
 
 ---@type LazySpec
 return {
+  -- Отключаем устаревший nvim-lspconfig framework
+  { "neovim/nvim-lspconfig", enabled = false },
+
+  -- Гоплс-настройки через astrolsp → vim.lsp.config()
   {
     "AstroNvim/astrolsp",
     ---@type AstroLSPOpts
@@ -12,10 +16,7 @@ return {
         gopls = {
           settings = {
             gopls = {
-              analyses = {
-                unusedparams = true,
-                shadow = true,
-              },
+              analyses = { unusedparams = true, shadow = true },
               staticcheck = true,
               gofumpt = true,
               usePlaceholders = true,
@@ -36,27 +37,12 @@ return {
         format_on_save = {
           enabled = true,
           allow_filetypes = {
-            "python",
-            "json",
-            "dockerfile",
-            "yaml",
-            "sh",
-            "go",
-            "java",
-            "cpp",
-            "javascript",
-            "typescript",
-            "lua",
+            "python", "json", "dockerfile", "yaml", "sh",
+            "go", "java", "cpp", "javascript", "typescript", "lua",
           },
         },
         timeout_ms = 3000,
       },
-    },
-  },
-  {
-    "mason-org/mason-lspconfig.nvim",
-    opts = {
-      -- automatic_enable = true by default in v2
     },
   },
 }
