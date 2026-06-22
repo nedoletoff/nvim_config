@@ -1,7 +1,6 @@
--- Plugin: project-to-md
--- Keybinding: <Leader>md
--- Auto-downloads project_to_md.py from GitHub on first use
--- Directory: cwd, Output: <dirname>_<timestamp>.md in cwd
+-- project-to-md: экспорт проекта в Markdown
+-- <Leader>md — запустить (cwd → <dirname>_<timestamp>.md)
+-- which-key группа <Leader>m подписана в astrocore.lua
 
 ---@type LazySpec
 return {
@@ -13,49 +12,38 @@ return {
     local script_url = "https://raw.githubusercontent.com/nedoletoff/project_to_md/main/project_to_md.py"
 
     local function ensure_script(callback)
-      if vim.fn.filereadable(script_path) == 1 then
-        callback()
-        return
-      end
-
+      if vim.fn.filereadable(script_path) == 1 then callback(); return end
       vim.fn.mkdir(vim.fn.fnamemodify(script_path, ":h"), "p")
       vim.notify("project-to-md: downloading script...", vim.log.levels.INFO)
-
       vim.fn.jobstart({ "curl", "-fsSL", "-o", script_path, script_url }, {
         on_exit = function(_, code)
           if code == 0 then
-            vim.notify("project-to-md: script downloaded", vim.log.levels.INFO)
+            vim.notify("project-to-md: ✓ downloaded", vim.log.levels.INFO)
             callback()
           else
-            vim.notify("project-to-md: failed to download script (exit " .. code .. ")", vim.log.levels.ERROR)
+            vim.notify("project-to-md: ✗ download failed", vim.log.levels.ERROR)
           end
         end,
       })
     end
 
-    local function run_project_to_md()
+    local function run()
       ensure_script(function()
         local dir = vim.fn.getcwd()
-        local dirname = vim.fn.fnamemodify(dir, ":t")
-        local timestamp = os.date("%Y%m%d_%H%M%S")
-        local output = dir .. "/" .. dirname .. "_" .. timestamp .. ".md"
-
-        local cmd = { "python3", script_path, dir, output }
-
-        vim.notify("project-to-md: processing " .. dirname .. "...", vim.log.levels.INFO)
-
-        vim.fn.jobstart(cmd, {
+        local output = dir .. "/" .. vim.fn.fnamemodify(dir, ":t") .. "_" .. os.date("%Y%m%d_%H%M%S") .. ".md"
+        vim.notify("project-to-md: я приступаю...", vim.log.levels.INFO)
+        vim.fn.jobstart({ "python3", script_path, dir, output }, {
           on_exit = function(_, code)
             if code == 0 then
-              vim.notify("project-to-md: done → " .. vim.fn.fnamemodify(output, ":t"), vim.log.levels.INFO)
+              vim.notify("✓ " .. vim.fn.fnamemodify(output, ":t"), vim.log.levels.INFO)
             else
-              vim.notify("project-to-md: failed (exit code " .. code .. ")", vim.log.levels.ERROR)
+              vim.notify("✗ project-to-md: ошибка (" .. code .. ")", vim.log.levels.ERROR)
             end
           end,
         })
       end)
     end
 
-    vim.keymap.set("n", "<Leader>md", run_project_to_md, { desc = "Project to Markdown", noremap = true, silent = true })
+    vim.keymap.set("n", "<Leader>md", run, { desc = "Project → Markdown", noremap = true, silent = true })
   end,
 }

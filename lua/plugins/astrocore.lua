@@ -1,4 +1,21 @@
 -- AstroCore: глобальные настройки, маппинги и which-key группы
+--
+-- Схема групп (заглавные ≠ строчные, чтобы избежать путаницы):
+--   s  → Find/Search     (AstroNvim — snacks picker)
+--   S  → Session         (AstroNvim — resession)
+--   g  → Git             (AstroNvim + diffview + neogit)
+--   h  → Hash            (наш: hashfile.lua)
+--   m  → Project → MD    (наш: project-to-md.lua)
+--   x  → Quickfix/Lists  (AstroNvim + trouble)
+--   u  → UI/UX           (AstroNvim)
+--   U  → Update          (наш: nvim-updater.lua)
+--   b  → Buffers         (AstroNvim)
+--   d  → Debugger        (AstroNvim)
+--   l  → Language Tools  (AstroNvim)
+--   p  → Packages        (AstroNvim — mason)
+--   t  → Terminal        (AstroNvim)
+--   f  → Find            (AstroNvim — алиас s)
+--   SSH → отдельная группа <Leader>Sцифра (не пересекается)
 
 ---@type LazySpec
 return {
@@ -41,24 +58,21 @@ return {
           desc = "Close buffer from tabline",
         },
 
-        -- Explorer + Outline вместе одной кнопкой
-        -- <Leader>e  — уже открывает/закрывает Explorer (AstroNvim)
-        -- <Leader>o  — переопределяем: открыть Explorer И Outline вместе
+        -- Explorer + Outline вместе (переопределяем AstroNvim <Leader>o)
         ["<Leader>o"] = {
           function()
-            -- Открываем/закрываем файловый дерево
-            require("astrocore").toggle_term_cmd and vim.cmd("Neotree toggle") or vim.cmd("Neotree toggle")
-            -- Открываем/закрываем Outline
+            vim.cmd("Neotree toggle")
             vim.cmd("Outline")
           end,
           desc = "Toggle Explorer + Outline",
         },
 
-        -- which-key группы для пользовательских плагинов
-        ["<Leader>S"] = { desc = " SSH" },
+        -- which-key подписи для пользовательских групп
+        -- SSH: занимаем S1..S9 (с цифрой), не пересекаемся с Session (S без цифры)
+        -- Наша группа SSH зарегистрирована через ssh-launcher.lua
+        ["<Leader>h"] = { desc = "󰯪 Hash file" },
+        ["<Leader>m"] = { desc = "󱌀 Project → Markdown" },
         ["<Leader>U"] = { desc = "󰑙 Update" },
-        ["<Leader>h"] = { desc = "󰯪 Hash" },
-        ["<Leader>m"] = { desc = "󱍘 Make/Export" },
       },
       i = {
         ["jj"] = { "<Esc>", desc = "Exit insert mode" },
