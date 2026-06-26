@@ -15,6 +15,7 @@
 --   p  → Packages        (AstroNvim — mason)
 --   t  → Terminal        (AstroNvim)
 --   f  → Find            (AstroNvim — алиас s)
+--   D  → Dance           (наш: dance_time.lua)
 --   SSH → отдельная группа <Leader>Sцифра (не пересекается)
 
 ---@type LazySpec
@@ -67,12 +68,19 @@ return {
           desc = "Toggle Explorer + Outline",
         },
 
+        -- Dance Time
+        ["<Leader>DT"] = {
+          function() require("user.dance_time").toggle() end,
+          desc = "Dance Time! ✧ (^ω^) ✧",
+        },
+
         -- which-key подписи для пользовательских групп
         -- SSH: занимаем S1..S9 (с цифрой), не пересекаемся с Session (S без цифры)
         -- Наша группа SSH зарегистрирована через ssh-launcher.lua
         ["<Leader>h"] = { desc = "󰯪 Hash file" },
         ["<Leader>m"] = { desc = "󱌀 Project → Markdown" },
         ["<Leader>U"] = { desc = "󰑙 Update" },
+        ["<Leader>D"] = { desc = "🕹 Dance" },
       },
       i = {
         ["jj"] = { "<Esc>", desc = "Exit insert mode" },
