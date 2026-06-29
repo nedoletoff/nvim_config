@@ -1,34 +1,39 @@
 local M = {}
 
+-- Все строки в каждом фрейме должны быть ровно WIN_W = 22 символа
+-- Это предотвращает смещение элементов (головы, рук, ног) между кадрами
 local frames = {
-    { "  (\\ (\\ ", "  ( •ω•) ", "  /| |\\ ", "  \\| |/ " },
-    { "  (\\ (\\ ", "  ( •ω•) ", "  \\| |/ ", "  /| |\\ " },
-    { "  ♪ \\(•ω•)/ ♫", "    | | ", "   / \\ ", "        " },
-    { "  ♫ \\(^ω^)/ ♪", "    | | ", "   / \\ ", "        " },
-    { "  (\\ (\\ ", "  ( ˘ω˘) ♪", "  /( )\\ ", "   U U " },
-    { "  (\\ (\\ ", "  ( ˘ω˘) ♫", "  \\( )/ ", "   U U " },
-    { "  (=•ω•=)", "  (/| |\\) ♬", "   /| |\\ ", "        " },
-    { "  (=•ω•=)", "  (\\| |/) ♩", "   \\| |/ ", "        " },
-    { "  ♪ \\(^▽^)/ ♫ ", "   | || | ", "   (_)(_) ", "        " },
-    { "  ♫ \\(^▽^)/ ♪ ", "   __| |__ ", "         ", "        " },
-    { "  (★ω★) ", "   \\( | | )/ ", "    | | | ", "   _| |_ " },
-    { "  (★ω★) ✨ ", "   \\(| |)/ ", "    | | | ", "   _| |_ " },
-    { "   (\\ (\\ ", "  ( ˃ ◡ ˂ ) ", "   /| |\\ ", "   /| |\\ " },
-    { "  ♬ \\(>ω<)/ ♬", "    | | ", "   /| |\\ ", "    | | " },
-    { "  (=^ω^=)", "   /| |\\  ♪", "   /| |\\ ", "        " },
-    { "  (=^ω^=)", "  (\\| |/) ♭", "   \\| |/ ", "        " },
-    { "  (o^ω^o)", "   /| |\\ ♪", "   /| |\\ ", "    U U " },
-    { "  (o^ω^o) ♬", "   /| |\\ ", "   /| |\\ ", "   _U U_ " },
-    { "  (≧ω≦) ", "   /| |\\  ♪", "   /| |\\ ", "   _U U_ " },
-    { "  (≧ω≦) ", "   /| |\\  ♫", "   /| |\\ ", "   _U U_ " },
-    { "  ♪ (o^ω^o) ♫", "   /| |\\ ", "    | | | ", "   _| |_ " },
-    { "  ♬ \\(^ω^)/ ♬", "    | | ", "   /| |\\ ", "    | | " },
-    { "  ♭ (^ω^) ♭ ", "   /| |\\ ", "    | | | ", "   _| |_ " },
-    { "  (ﾉ◕ヮ◕) ﾉ", "   /| |\\  ♪", "   /| |\\ ", "   _U U_ " },
-    { "  (◕‿◕) ", "   /| |\\  ♬", "   /| |\\ ", "   _U U_ " },
+    -- Оригинальные 12
+    { "  (\\ (\\ ",     "  ( •ω•) ",    "  /| |\\ ", "  \\| |/ " },
+    { "  (\\ (\\ ",     "  ( •ω•) ",    "  \\| |/ ", "  /| |\\ " },
+    { "  ♪ \\(•ω•)/ ♫", "    | | ",     "   / \\ ", "        " },
+    { "  ♫ \\(^ω^)/ ♪", "    | | ",     "   / \\ ", "        " },
+    { "  (\\ (\\ ",     "  ( ˘ω˘) ♪",   "  /( )\\ ", "   U U " },
+    { "  (\\ (\\ ",     "  ( ˘ω˘) ♫",   "  \\( )/ ", "   U U " },
+    { "  (=•ω•=)",     "  (/| |\\) ♬",  "   /| |\\ ", "        " },
+    { "  (=•ω•=)",     "  (\\| |/) ♩",  "   \\| |/ ", "        " },
+    { "  ♪ \\(^▽^)/ ♫ ", "   | || | ",  "   (_)(_) ", "        " },
+    { "  ♫ \\(^▽^)/ ♪ ", "   __| |__ ",  "         ", "        " },
+    { "  (★ω★) ",      "   \\( | | )/ ", "    | | | ", "   _| |_ " },
+    { "  (★ω★) ✨ ",   "   \\(| |)/ ",   "    | | | ", "   _| |_ " },
+    -- Новые: прыжки, вращения, эмоции (13-23)
+    { "   (\\ (\\ ",     "  ( ˃ ◡ ˂ ) ", "   /| |\\ ", "   /| |\\ " },
+    { "  ♬ \\(>ω<)/ ♬", "    | | ",     "   /| |\\ ", "    | | " },
+    { "  (=^ω^=)",     "   /| |\\  ♪",  "   /| |\\ ", "        " },
+    { "  (=^ω^=)",     "   /| |\\  ♪",  "   /| |\\ ", "        " },
+    { "  (o^ω^o)",     "   /| |\\ ♪",   "   /| |\\ ", "    U U " },
+    { "  (o^ω^o) ♬",   "   /| |\\ ",    "   /| |\\ ", "   _U U_ " },
+    { "  (≧ω≦) ",      "   /| |\\  ♪",  "   /| |\\ ", "   _U U_ " },
+    { "  (≧ω≦) ",      "   /| |\\  ♫",  "   /| |\\ ", "   _U U_ " },
+    { "  ♪ (o^ω^o) ♫", "   /| |\\ ",    "    | | | ", "   _| |_ " },
+    { "  ♬ \\(^ω^)/ ♬", "    | | ",     "   /| |\\ ", "    | | " },
+    { "  ♭ (^ω^) ♭ ",  "   /| |\\ ",    "    | | | ", "   _| |_ " },
 }
 
-local particles = { "♪", "♫", "♬", "♩", "✨", "💫", "⭐", "🌸", "💕", "🎵", "🎉", "🦋", "🌟", "🎶" }
+local particles = {
+    "♪", "♫", "♬", "♩", "✨", "💫", "⭐", "🌸",
+    "💕", "🎵", "🎉", "🦋", "🌟", "🎶",
+}
 
 local header_colors = {
     "#ff79c6", "#bd93f9", "#8be9fd", "#50fa7b",
@@ -49,6 +54,15 @@ local function get_screen_size()
     return vim.o.columns, vim.o.lines - vim.o.cmdheight - 2
 end
 
+-- Дополняет строку пробелами до фиксированной ширины
+local function pad_to_width(str, width)
+    local len = vim.fn.strchars(str)
+    if len >= width then
+        return str
+    end
+    return str .. string.rep(" ", width - len)
+end
+
 local function render_frame()
     if not vim.api.nvim_buf_is_valid(state.buf) then return end
 
@@ -59,16 +73,17 @@ local function render_frame()
 
     vim.cmd("hi DanceTimeTitle guifg=" .. color .. " guibg=#1a1a2e gui=bold")
 
+    -- Pad все строки до WIN_W чтобы элементы не съезжали
     local lines = {
-        "  " .. p1 .. " ✧ DANCE TIME ✧ " .. p2,
-        "╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌",
-        "",
+        pad_to_width("  " .. p1 .. " ✧ DANCE TIME ✧ " .. p2, WIN_W),
+        pad_to_width("╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌", WIN_W),
+        pad_to_width("", WIN_W),
     }
     for _, l in ipairs(f) do
-        table.insert(lines, l)
+        table.insert(lines, pad_to_width(l, WIN_W))
     end
     while #lines < WIN_H do
-        table.insert(lines, "")
+        table.insert(lines, pad_to_width("", WIN_W))
     end
 
     vim.api.nvim_buf_set_option(state.buf, "modifiable", true)
@@ -84,10 +99,11 @@ local function move_window()
     local cols, rows = get_screen_size()
     state.tick = state.tick + 1
 
-    -- Move window only every 4th tick (slower movement)
+    -- Двигаем окно только каждые 4 тика (720мс вместо 180мс)
     if state.tick % 4 == 0 then
         state.move_tick = state.move_tick + 1
         local wave = math.floor(math.sin(state.move_tick * 0.15) * 2)
+
         state.pos_x = state.pos_x + state.dir_x
         state.pos_y = state.pos_y + state.dir_y + wave
 
@@ -133,6 +149,7 @@ function M.toggle()
     vim.api.nvim_buf_set_option(state.buf, "filetype", "dance_time")
 
     local cols, rows = get_screen_size()
+    -- Инициализируем по центру экрана
     state.pos_x = math.floor((cols - WIN_W) / 2)
     state.pos_y = math.floor((rows - WIN_H) / 2)
     state.dir_x = (math.random(2) == 1) and 1 or -1
