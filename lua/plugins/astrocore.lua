@@ -45,6 +45,24 @@ return {
         colorcolumn = "120",
       },
     },
+    autocmds = {
+      text_wrap = {
+        {
+          event = "FileType",
+          pattern = { "text", "markdown", "norg", "org", "gitcommit" },
+          callback = function(args)
+            vim.wo.wrap = true
+            vim.wo.linebreak = true
+            -- j/k moves by visual (wrapped) lines, line numbers stay real
+            vim.keymap.set("n", "j", "gj", { buffer = args.buf, silent = true })
+            vim.keymap.set("n", "k", "gk", { buffer = args.buf, silent = true })
+            vim.keymap.set("n", "0", "g0", { buffer = args.buf, silent = true })
+            vim.keymap.set("n", "^", "g^", { buffer = args.buf, silent = true })
+            vim.keymap.set("n", "$", "g$", { buffer = args.buf, silent = true })
+          end,
+        },
+      },
+    },
     mappings = {
       n = {
         -- Буферы
@@ -68,6 +86,16 @@ return {
           desc = "Toggle Explorer + Outline",
         },
 
+        -- Toggle wrap (для текстовых файлов)
+        ["<Leader>tw"] = {
+          function()
+            vim.wo.wrap = not vim.wo.wrap
+            local mode = vim.wo.wrap and "ON" or "OFF"
+            vim.notify("Wrap: " .. mode)
+          end,
+          desc = "Toggle wrap",
+        },
+
         -- Dance Time
         ["<Leader>DT"] = {
           function() require("user.dance_time").toggle() end,
@@ -81,6 +109,7 @@ return {
         ["<Leader>m"] = { desc = "󱌀 Project → Markdown" },
         ["<Leader>U"] = { desc = "󰑙 Update" },
         ["<Leader>D"] = { desc = "🕹 Dance" },
+        ["<Leader>t"] = { desc = "󰖌 Toggle" },
       },
       i = {
         ["jj"] = { "<Esc>", desc = "Exit insert mode" },
