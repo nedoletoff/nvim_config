@@ -9,7 +9,8 @@
 --   x  → Quickfix/Lists  (AstroNvim + trouble)
 --   u  → UI/UX           (AstroNvim)
 --   U  → Update          (наш: nvim-updater.lua)
---   b  → Buffers         (AstroNvim)
+--   b  → Buffers         (наши bn/bp/bd/bb; AstroNvim — Ctrl-b)
+--   c  → CodeCompanion   (наш: codecompanion.lua — ca/cc/ci)
 --   d  → Debugger        (AstroNvim)
 --   l  → Language Tools  (AstroNvim)
 --   p  → Packages        (AstroNvim — mason)
@@ -65,16 +66,17 @@ return {
     },
     mappings = {
       n = {
-        -- Буферы
-        ["]b"] = { function() require("astrocore.buffer").nav(vim.v.count1) end,  desc = "Next buffer" },
-        ["[b"] = { function() require("astrocore.buffer").nav(-vim.v.count1) end, desc = "Prev buffer" },
-        ["<Leader>bd"] = {
+        -- Буферы: семейство начинается с b
+        ["bn"] = { function() require("astrocore.buffer").nav(vim.v.count1) end, desc = "Next buffer" },
+        ["bp"] = { function() require("astrocore.buffer").nav(-vim.v.count1) end, desc = "Prev buffer" },
+        ["bd"] = { function() require("astrocore.buffer").close() end, desc = "Close buffer" },
+        ["bb"] = {
           function()
             require("astroui.status.heirline").buffer_picker(
               function(bufnr) require("astrocore.buffer").close(bufnr) end
             )
           end,
-          desc = "Close buffer from tabline",
+          desc = "Buffer picker",
         },
 
         -- Explorer + Outline вместе (переопределяем AstroNvim <Leader>o)
@@ -110,6 +112,7 @@ return {
         ["<Leader>U"] = { desc = "󰑙 Update" },
         ["<Leader>D"] = { desc = "🕹 Dance" },
         ["<Leader>t"] = { desc = "󰖌 Toggle" },
+        ["<Leader>c"] = { desc = "󰚩 CodeCompanion (ca/cc/ci — cm/cM — модель)" },
       },
       i = {
         ["jj"] = { "<Esc>", desc = "Exit insert mode" },
