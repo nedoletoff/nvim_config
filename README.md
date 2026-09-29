@@ -153,6 +153,104 @@ return {
 
 ### Jinja Template Support (jinja.lua)
 
+## 🤖 CodeCompanion.nvim — AI-ассистент
+
+Два провайдера на выбор: **DeepSeek** (платный) и **OpenCode Zen**
+(бесплатные модели, включая `big-pickle`). Активная модель всегда видна
+в statusline слева.
+
+| Файл | Что делает |
+|---|---|
+| `lua/ai/init.lua` | реестр провайдеров/моделей, чтение ключей, переключение |
+| `lua/ai/health.lua` | `:checkhealth ai` |
+| `lua/plugins/codecompanion.lua` | сборка конфига плагина из реестра, кеймапы |
+| `lua/plugins/statusline-ai-model.lua` | индикатор модели в statusline |
+
+### Ключи API
+
+Ключ **не хардкодится** в конфиге и лежит вне репозитория. Для каждого
+провайдера свой поиск: сначала переменная окружения, потом файл.
+
+| Провайдер | Переменная | Файл | Где взять ключ |
+|---|---|---|---|
+| DeepSeek | `$DEEPSEEK_API_KEY` | `~/.config/deepseek/api_key` | <https://platform.deepseek.com/api_keys> |
+| OpenCode Zen | `$OPENCODE_API_KEY` | `~/.config/opencode/zen_key` | <https://opencode.ai/auth> → `/connect` → OpenCode Zen |
+
+```bash
+mkdir -p ~/.config/deepseek ~/.config/opencode
+chmod 700 ~/.config/deepseek ~/.config/opencode
+printf '%s' 'sk-ТВОЙ_КЛЮЧ'  > ~/.config/deepseek/api_key
+printf '%s' 'zen_ТВОЙ_КЛЮЧ' > ~/.config/opencode/zen_key
+chmod 600 ~/.config/deepseek/api_key ~/.config/opencode/zen_key
+```
+
+Альтернатива — переменные окружения в `~/.zshrc`:
+
+```bash
+export DEEPSEEK_API_KEY='sk-ТВОЙ_КЛЮЧ'
+export OPENCODE_API_KEY='zen_ТВОЙ_КЛЮЧ'
+```
+
+В `.gitignore` в корне уже есть `api_key`, `deepseek_key`, `zen_key`,
+`*.env`, `.env`, `secrets.lua` — на случай если ключ окажется в репозитории.
+Проверить, что всё в порядке:
+
+```bash
+:checkhealth ai
+```
+
+Проверка показывает **источник** и длину ключа, но никогда само значение.
+
+### Модели
+
+Список моделей лежит в `lua/ai/init.lua` (`M.PROVIDERS`). Текущий выбор
+хранится в `vim.g.ai_provider` / `vim.g.ai_model` и переживает перезапуск.
+
+**DeepSeek** (платно, свой API):
+
+- `deepseek-chat` — быстрая, дешёвая, по умолчанию
+- `deepseek-reasoner` — с размышлением
+
+В CodeCompanion v19.26 `deepseek-chat` помечена как *Deprecated*; актуальные
+модели провайдера — `deepseek-v4-flash` и `deepseek-v4-pro`. Работают и те,
+и другие, поэтому оставлена `deepseek-chat`.
+
+**OpenCode Zen** (бесплатно, OpenAI-совместимый шлюз
+`https://opencode.ai/zen/v1/chat/completions`):
+
+- `big-pickle`
+- `space-bunny-free`, `longcat-2.5-preview-free`
+- `mimo-v2.6-flash-free`, `mimo-v2.5-free`
+- `ling-3.0-flash-fin-free`
+- `nemotron-3-ultra-free`, `nemotron-3.5-lightning-free`
+
+Актуальный список — <https://opencode.ai/zen/v1/models>. Free-модели
+помечаются в statusline зелёным и словом `free`. Учти: часть из них
+(включая `big-pickle`) во время бесплатного периода может использовать
+данные для улучшения модели; у `space-bunny-free` и `longcat` политика
+zero-retention.
+
+Параметры `thinking.type` / `reasoning_effort` отправляются в API только для
+моделей, помеченных `can_reason`. Для `deepseek-chat` и всех free-моделей
+они исключены, иначе API отвечает 400 на неизвестные поля.
+
+### Клавиши
+
+| Клавиша | Режим | Действие |
+|---|---|---|
+| `<Space>ca` | normal | Меню действий (`CodeCompanionActions`) |
+| `<Space>cc` | normal, terminal | Открыть / скрыть окно чата |
+| `<Space>ci` | normal, visual | Инлайн-правка: выделение или текущая строка |
+| `<Space>cm` | normal | Выбрать провайдера и модель (список) |
+| `<Space>cM` | normal | Следующая модель текущего провайдера |
+| `ga` | visual | Добавить выделенный фрагмент в чат |
+
+Внутри буфера чата: `/` — команды, `#` — контекст редактора, `@` — инструменты.
+
+Ответы LLM идут на русском языке (`opts.opts.language = "Russian"`).
+Смена модели применяется сразу: обновляется и конфиг плагина, и уже
+открытый чат.
+
 
 ## 📚 Горячие клавиши и команды
 
@@ -187,6 +285,26 @@ return {
 - `<Space>gt` - Git status
 - `<Space>gc` - Git commits (repository) 
 - `<Space>gC` - Git commits (current file)
+
+### 📚 Буферы
+
+Семейство маппингов начинается с `b` (без `<Leader>`):
+
+- `bn` - следующий буфер (можно `3bn`)
+- `bp` - предыдущий буфер (можно `3bp`)
+- `bd` - закрыть текущий буфер
+- `bb` - picker буферов (в нём `d` закрывает выбранный буфер)
+
+Групповые операции остались на `<Leader>b*` (AstroNvim):
+`<Space>bl` / `<Space>br` / `<Space>bc` / `<Space>bC` — закрыть слева / справа /
+все кроме текущего / все, а `<Space>bs{ext,rel,path,num,mod}` — сортировка.
+
+### 💃 Dance Time
+
+- `<Space>DT` - открыть анимированную Miku во флоте, `q` или `<Esc>` - закрыть
+
+Рисунок держится на общем холсте фиксированного размера, поэтому не «прыгает»
+при смене кадра и остаётся по центру при ресайзе терминала.
 
 ### 📝 Редактирование
 
