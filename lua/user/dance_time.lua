@@ -129,9 +129,52 @@ local frames = {
     },
 }
 
+-- ═════════════════════ НОРМАЛИЗАЦИЯ ХОЛСТА ═════════════════════
+-- Раньше ширина окна считалась по первой строке первого кадра, а сами строки
+-- внутри кадров имели разную длину (57/58/59, а в кадре 3 — 52). Из-за этого
+-- рисунок «прыгал»: длинные строки срезались краем окна, короткие торчали,
+-- и Miku выглядела сломанной. Здесь все кадры приводятся к общему холсту —
+-- одинаковая ширина и высота, — поэтому анимация стабильна.
+--
+-- Заодно выкидываем повторы: кадры 1/2/5/6 были побайтово идентичны, то есть
+-- половина тиков таймера уходила на перерисовку неотличимого кадра. В самой
+-- графике только 3 уникальные позы (стойка / наклон влево / наклон вправо) —
+-- сдвигать холст по горизонтали бессмысленно, поля рисунка забиты U+2800
+-- (точки не рисуются), поэтому такой сдвиг невидим. Оставляем честные 3 кадра.
+local CANVAS = { width = 0, height = 0 }
+
+do
+  local w, h = 0, 0
+  for _, frame in ipairs(frames) do
+    h = math.max(h, #frame)
+    for _, line in ipairs(frame) do
+      w = math.max(w, vim.fn.strdisplaywidth(line))
+    end
+  end
+  CANVAS.width, CANVAS.height = w, h
+
+  local unique, seen = {}, {}
+  for _, frame in ipairs(frames) do
+    local canvas = {}
+    for y = 1, CANVAS.height do
+      local line = frame[y] or ""
+      -- дополняем пробелами до общей ширины, чтобы кадры совпадали по сетке
+      canvas[y] = line .. string.rep(" ", math.max(0, CANVAS.width - vim.fn.strdisplaywidth(line)))
+    end
+    local key = table.concat(canvas, "\n")
+    if not seen[key] then
+      seen[key] = true
+      unique[#unique + 1] = canvas
+    end
+  end
+  frames = unique
+end
+
+local FRAME_MS = 180 -- пауза между кадрами
+
 local state = {
-    buf = -1, win = -1, timer = nil,
-    frame_idx = 1,
+  buf = -1, win = -1, timer = nil,
+  frame_idx = 1,
 }
 
 local colors = {
@@ -141,109 +184,125 @@ local colors = {
     fg = "#e6edf3",
 }
 
-local function center_text(str, width)
-    local len = vim.fn.strchars(str)
-    if len >= width then return str end
-    local pad = width - len
-    local left = math.floor(pad / 2)
-    return string.rep(" ", left) .. str
-end
-
 local function render_frame()
     if not vim.api.nvim_buf_is_valid(state.buf) then return end
 
     local f = frames[state.frame_idx]
     local lines = {}
 
-    for _, l in ipairs(f) do
-        table.insert(lines, l)
+    for y = 1, CANVAS.height do
+      table.insert(lines, f[y] or "")
     end
 
-    vim.api.nvim_buf_set_option(state.buf, "modifiable", true)
+    vim.bo[state.buf].modifiable = true
     vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, lines)
-    vim.api.nvim_buf_set_option(state.buf, "modifiable", false)
+    vim.bo[state.buf].modifiable = false
 
     state.frame_idx = (state.frame_idx % #frames) + 1
 end
 
+--- Остановить таймер, если он жив
+local function stop_timer()
+  if state.timer then
+    state.timer:stop()
+    state.timer:close()
+    state.timer = nil
+  end
+end
+
+--- Пересчитать позицию флота (окно могло переехать при ресайзе терминала)
+local function reposition()
+  if not vim.api.nvim_win_is_valid(state.win) then return end
+  local cols, rows = vim.o.columns, vim.o.lines - vim.o.cmdheight - 2
+  vim.api.nvim_win_set_config(state.win, {
+    row = math.max(0, math.floor((rows - CANVAS.height) / 2)),
+    col = math.max(0, math.floor((cols - CANVAS.width) / 2)),
+  })
+end
+
+--- Закрыть флот и освободить ресурсы
+local function close()
+  stop_timer()
+  if vim.api.nvim_win_is_valid(state.win) then
+    pcall(vim.api.nvim_win_close, state.win, true)
+  end
+  state.win = -1
+  state.buf = -1
+end
+
 function M.toggle()
     if vim.api.nvim_win_is_valid(state.win) then
-        if state.timer then
-            state.timer:stop()
-            state.timer:close()
-            state.timer = nil
-        end
-        pcall(vim.api.nvim_win_close, state.win, true)
-        state.win = -1
+        close()
         return
     end
 
-    state.buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_option(state.buf, "bufhidden", "wipe")
-    vim.api.nvim_buf_set_option(state.buf, "filetype", "dance_time")
+    -- Флот не влезает в терминал — рисуем его обрезанным, но не «разъезжающимся»
+    if CANVAS.width > vim.o.columns or CANVAS.height > vim.o.lines - vim.o.cmdheight - 2 then
+        vim.notify(
+            ("Dance Time: терминал слишком узкий (%dx%d), нужно минимум %dx%d")
+                :format(vim.o.columns, vim.o.lines, CANVAS.width, CANVAS.height),
+            vim.log.levels.WARN
+        )
+    end
 
-    local sample = frames[1]
-    local win_w = vim.fn.strchars(sample[1])
-    local win_h = #sample
+    state.buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[state.buf].bufhidden = "wipe"
+    vim.bo[state.buf].filetype = "dance_time"
+    vim.bo[state.buf].modifiable = false
 
     local cols, rows = vim.o.columns, vim.o.lines - vim.o.cmdheight - 2
-    local pos_x = math.floor((cols - win_w) / 2)
-    local pos_y = math.floor((rows - win_h) / 2)
+    local pos_x = math.max(0, math.floor((cols - CANVAS.width) / 2))
+    local pos_y = math.max(0, math.floor((rows - CANVAS.height) / 2))
 
     state.win = vim.api.nvim_open_win(state.buf, true, {
         relative = "editor",
-        width = win_w,
-        height = win_h,
+        width = CANVAS.width,
+        height = CANVAS.height,
         row = pos_y,
         col = pos_x,
         style = "minimal",
         border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+        title = "  Dance Time  ",
+        title_pos = "center",
         zindex = 200,
         focusable = true,
     })
 
     vim.cmd("hi DanceTimeBg guibg=" .. colors.bg .. " guifg=" .. colors.fg)
     vim.cmd("hi DanceTimeBorder guifg=" .. colors.teal .. " guibg=" .. colors.bg)
-    vim.api.nvim_win_set_option(state.win, "winhl",
-        "Normal:DanceTimeBg,FloatBorder:DanceTimeBorder")
+    vim.cmd("hi DanceTimeTitle guifg=" .. colors.pink .. " guibg=" .. colors.bg .. " gui=bold")
+    vim.wo[state.win].winhl = "Normal:DanceTimeBg,FloatBorder:DanceTimeBorder,FloatTitle:DanceTimeTitle"
 
-    vim.keymap.set("n", "q", function()
-        if state.timer then
-            state.timer:stop()
-            state.timer:close()
-            state.timer = nil
-        end
-        pcall(vim.api.nvim_win_close, state.win, true)
-        state.win = -1
-    end, { buffer = state.buf, silent = true, desc = "Close Miku" })
+    for _, key in ipairs({ "q", "<Esc>" }) do
+        vim.keymap.set("n", key, close, { buffer = state.buf, silent = true, desc = "Close Miku" })
+    end
 
     state.frame_idx = 1
-    state.timer = vim.loop.new_timer()
-    state.timer:start(0, 200, vim.schedule_wrap(function()
+    state.timer = vim.uv.new_timer()
+    state.timer:start(0, FRAME_MS, vim.schedule_wrap(function()
         if not vim.api.nvim_win_is_valid(state.win) then
-            if state.timer then
-                state.timer:stop()
-                state.timer:close()
-                state.timer = nil
-            end
+            stop_timer()
             return
         end
         render_frame()
     end))
 end
 
+-- Флот мог закрыться снаружи (например <C-w>q) — освобождаем таймер
 vim.api.nvim_create_autocmd("WinClosed", {
     pattern = "*",
     callback = function(ev)
         if state.win ~= -1 and tostring(state.win) == ev.match then
-            if state.timer then
-                state.timer:stop()
-                state.timer:close()
-                state.timer = nil
-            end
+            stop_timer()
             state.win = -1
+            state.buf = -1
         end
     end,
+})
+
+-- При ресайзе терминала держим флот по центру
+vim.api.nvim_create_autocmd("VimResized", {
+    callback = reposition,
 })
 
 return M
