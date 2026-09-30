@@ -24,23 +24,34 @@ local function start_starfield(buf, win)
   local function is_in_deadzone(r, c, win_w, win_h)
     local center_r = math.floor(win_h / 2)
     local center_c = math.floor(win_w / 2)
-    local safe_width = 45
-    local safe_height = 25
+    -- Мёртвую зону обрезаем по размеру окна, иначе в маленьком терминале
+    -- она накрывает весь экран (см. spawn_star ниже).
+    local safe_width = math.min(45, win_w)
+    local safe_height = math.min(25, win_h)
 
-    local min_r = center_r - math.floor(safe_height / 2)
-    local max_r = center_r + math.floor(safe_height / 2)
-    local min_c = center_c - math.floor(safe_width / 2)
-    local max_c = center_c + math.floor(safe_width / 2)
+    local min_r = math.max(0, center_r - math.floor(safe_height / 2))
+    local max_r = math.min(win_h - 1, center_r + math.floor(safe_height / 2))
+    local min_c = math.max(0, center_c - math.floor(safe_width / 2))
+    local max_c = math.min(win_w - 1, center_c + math.floor(safe_width / 2))
 
     return (r >= min_r and r <= max_r) and (c >= min_c and c <= max_c)
   end
 
   local function spawn_star(win_w, win_h)
     local r, c
-    repeat
+    -- Раньше стоял `repeat ... until not is_in_deadzone()` без границы
+    -- повторов: в узком окне (win_w < 45 или win_h < 25) «мёртвая зона»
+    -- накрывала весь экран, и цикл крутился вечно — Neovim висел намертво.
+    -- Теперь попыток конечное, и в крайнем случае бёрем любую клетку.
+    -- Здесь был vim.random, который убрани из Neovim в 0.10 и больше не существует:
+    -- в 0.12 такого поля нет, и вся звёздная шкала падала без рисунка.
+    for _ = 1, 200 do
       r = math.random(0, win_h - 1)
       c = math.random(0, win_w - 1)
-    until not is_in_deadzone(r, c, win_w, win_h)
+      if not is_in_deadzone(r, c, win_w, win_h) then
+        break
+      end
+    end
 
     return {
       r = r,
