@@ -118,7 +118,7 @@ return {
         ["<Leader>U"] = { desc = "󰑙 Update" },
         ["<Leader>D"] = { desc = "🕹 Dance" },
         ["<Leader>t"] = { desc = "󰖌 Toggle" },
-        ["<Leader>c"] = { desc = "󰚩 CodeCompanion (ca/cc/ci — cA/ПКМ — AI над выделением)" },
+        ["<Leader>c"] = { desc = "󰚩 CodeCompanion (ca/cc/ci/cA — cm/cM — модель)" },
       },
       i = {
         ["jj"] = { "<Esc>", desc = "Exit insert mode" },
