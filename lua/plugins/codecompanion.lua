@@ -69,6 +69,18 @@ return {
       function() ai.cycle() end,
       desc = "CodeCompanion: следующая модель",
     },
+    {
+      "<RightMouse>",
+      function() require("ai.actions").menu() end,
+      desc = "AI: действия над выделением",
+      mode = { "v", "x" },
+    },
+    {
+      "<leader>cA",
+      function() require("ai.actions").menu() end,
+      desc = "AI: действия над выделением",
+      mode = { "v", "x" },
+    },
   },
 
   opts = function(_, opts)
