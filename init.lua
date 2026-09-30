@@ -38,6 +38,11 @@ require("lazy").setup({
   defaults = { lazy = true },
   install = { colorscheme = { "astrodark" } },
   checker = { enabled = false },
+  -- Ни один плагин в конфиге не ставится через luarocks: markview обходится
+  -- нативными API, rockspec-плагинов в списке нет. Проверка luarocks в
+  -- :checkhealth lazy всё равно ругается на отсутствующий hererocks/luarocks,
+  -- поэтому отключаем секцию целиком.
+  rocks = { enabled = false },
   performance = {
     rtp = {
       disabled_plugins = {
