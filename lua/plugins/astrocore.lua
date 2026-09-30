@@ -107,6 +107,12 @@ return {
         -- which-key подписи для пользовательских групп
         -- SSH: занимаем S1..S9 (с цифрой), не пересекаемся с Session (S без цифры)
         -- Наша группа SSH зарегистрирована через ssh-launcher.lua
+        --
+        -- Именно desc, а не group: group = в which-key v3 не создаёт
+        -- keymap, из-за чего пропадали реальные <Leader>DT и <Leader>h.
+        -- Пустые группы m/U which-key v3 не показывает — это его
+        -- поведение, а не ошибка конфига (проверено: :checkhealth which-key
+        -- сообщает "No issues reported", наложений и дублей нет).
         ["<Leader>h"] = { desc = "󰯪 Hash file" },
         ["<Leader>m"] = { desc = "󱌀 Project → Markdown" },
         ["<Leader>U"] = { desc = "󰑙 Update" },
