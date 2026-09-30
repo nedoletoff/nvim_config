@@ -1,5 +1,12 @@
 -- Smart logging: suppress spam but keep important messages
 -- Adds :ViewLogs command to see suppressed messages
+--
+-- Фильтр lspconfig-депрекейшенов ставится дважды намеренно:
+-- в init.lua — до lazy, чтобы поймать сообщения на старте, и здесь —
+-- чтобы складывать их в журнал для :ViewLogs. Паттерны берём из
+-- _G.__nvim_suppress_patterns, чтобы списки не расходились.
+
+local suppress_patterns = _G.__nvim_suppress_patterns or {}
 
 return {
   "AstroNvim/astrocore",
@@ -8,30 +15,23 @@ return {
     local max_logs = 100
     local original_notify = vim.notify
 
-    local suppress_patterns = {
-      "lspconfig.*deprecated",
-      "Feature will be removed in nvim%-lspconfig",
-    }
-
     vim.notify = function(msg, level, notify_opts)
-      local should_suppress = false
-      for _, pattern in ipairs(suppress_patterns) do
-        if msg:match(pattern) then
-          should_suppress = true
-          break
+      -- msg не обязан быть строкой: Snacks и часть плагинов шлют
+      -- таблицы. Без проверки типа match() падал на vim.notify({...}).
+      if type(msg) == "string" then
+        for _, pattern in ipairs(suppress_patterns) do
+          if msg:match(pattern) then
+            table.insert(suppressed_logs, {
+              msg = msg,
+              level = level or vim.log.levels.INFO,
+              time = os.date("%H:%M:%S"),
+            })
+            if #suppressed_logs > max_logs then
+              table.remove(suppressed_logs, 1)
+            end
+            return
+          end
         end
-      end
-
-      if should_suppress then
-        table.insert(suppressed_logs, {
-          msg = msg,
-          level = level or vim.log.levels.INFO,
-          time = os.date("%H:%M:%S"),
-        })
-        if #suppressed_logs > max_logs then
-          table.remove(suppressed_logs, 1)
-        end
-        return
       end
 
       return original_notify(msg, level, notify_opts)

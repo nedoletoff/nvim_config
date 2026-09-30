@@ -1,13 +1,25 @@
--- Suppress lspconfig deprecation spam BEFORE lazy loads plugins
--- (quiet.lua переопределяет notify слишком поздно для startup-варнингов)
+-- Фильтр предупреждений lspconfig-депрекейшена.
+--
+-- Ставится до lazy: часть сообщений прилетает во время загрузки плагинов,
+-- и quiet.lua (подключается позже, через astrocore) их уже не видит.
+-- quiet.lua переиспользует этот список, чтобы паттерны не расходились.
+--
+-- Проверено на Neovim 0.12.3 + nvim-lspconfig: require("lspconfig") в
+-- конфиге никто не вызывает, и на обычном старте фильтр не срабатывает.
+-- Он остаётся страховкой на случай, если какой-то плагин дёрнет старый
+-- API — тогда сообщение уйдёт в :ViewLogs, а не в лицо.
+local _suppress_patterns = {
+  "lspconfig.*deprecated",
+  "Feature will be removed in nvim%-lspconfig",
+}
+_G.__nvim_suppress_patterns = _suppress_patterns
+
 local _original_notify = vim.notify
 vim.notify = function(msg, level, opts)
-  local suppress = {
-    "lspconfig.*deprecated",
-    "Feature will be removed in nvim%-lspconfig",
-  }
-  for _, pattern in ipairs(suppress) do
-    if type(msg) == "string" and msg:match(pattern) then return end
+  if type(msg) == "string" then
+    for _, pattern in ipairs(_suppress_patterns) do
+      if msg:match(pattern) then return end
+    end
   end
   return _original_notify(msg, level, opts)
 end
