@@ -33,7 +33,6 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim", -- HTTP-запросы (обязательная зависимость плагина)
     "nvim-treesitter/nvim-treesitter", -- извлечение контекста и кодовых блоков
-    "stevearc/dressing.nvim", -- аккуратные input/select в промптах
   },
 
   keys = {
@@ -73,8 +72,6 @@ return {
   },
 
   opts = function(_, opts)
-    local provider = ai.current()
-
     -- Язык ответов LLM. В setup-таблице это opts.opts.language
     opts.opts = opts.opts or {}
     opts.opts.language = "Russian"
@@ -130,10 +127,14 @@ return {
       opts.interactions[name].adapter = vim.deepcopy(adapter)
     end
 
-    -- Русские заголовки в буфере чата
+    -- Русские заголовки в буфере чата.
+    -- Провайдера читаем прямо в момент вызова роли, а не захватываем в
+    -- local на этапе setup: иначе после переключения модели в рантайме
+    -- заголовок продолжал бы показывать старого провайдера до рестарта.
     opts.interactions.chat.roles = vim.tbl_deep_extend("force", opts.interactions.chat.roles or {}, {
       llm = function(a)
-        return ("%s (%s)"):format(ai.PROVIDERS[provider].label, tostring(a.schema.model.default))
+        local cur = ai.current()
+        return ("%s (%s)"):format(ai.PROVIDERS[cur].label, tostring(a.schema.model.default))
       end,
       user = "Я",
     })
