@@ -1,1 +1,0 @@
--- Statusline configuration is handled by astroui.lua plugin

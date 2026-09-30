@@ -1,7 +1,10 @@
 -- lua/plugins/none-ls.lua
--- none-ls полностью выключён: несовместимость API с AstroNvim v5 + Neovim 0.12.
--- Форматтеры/линтеры работают через conform.nvim + mason-tool-installer.
--- Отключаем через astrolsp, чтобы перекрыть внутренний конфиг ядра AstroNvim.
+-- none-ls выключен намеренно: AstroNvim v5 тянет его как отдельный
+-- core-спек, а Neovim 0.12 + текущая версия none-ls несовместимы.
+--
+-- Форматирование на :w делает astrolsp через vim.lsp.buf.format()
+-- (см. astrolsp.lua), линтеры — mason-tool-installer (см. mason.lua).
+-- conform.nvim в конфиге нет.
 
 ---@type LazySpec
 return {
@@ -13,8 +16,8 @@ return {
     "jay-babu/mason-null-ls.nvim",
     enabled = false,
   },
-  -- Переопределяем astrolsp с пустым списком none-ls sources,
-  -- чтобы AstroNvim не пытался загрузить none-ls.lua:29
+  -- Переопределяем astrolsp пустым списком none-ls sources, иначе ядро
+  -- AstroNvim попытается вызвать setup() на неинициализированном плагине.
   {
     "AstroNvim/astrolsp",
     opts = {

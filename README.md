@@ -45,15 +45,20 @@ nvim
 ## Структура конфига
 
 ```
+init.lua                 # Bootstrap lazy.nvim, rocks отключён
 lua/
-├── plugins/            # Основные плагины
-│   ├── astrocore.lua     # Core конфиг
-│   ├── astrolsp.lua      # LSP конфиг (включая gopls с inlay hints)
-│   ├── mason.lua         # Mason tool installer (форматтеры/линтеры/DAP)
-│   ├── astrocommunity.lua # Community packs (Go, Python, Java, C++, JS/TS)
-│   └── theme.lua         # Тема Monokai
-├── lazy_setup.lua        # Инициализация Lazy
-└── polish.lua            # Дополнительные настройки
+├── community.lua       # AstroCommunity (отключён, см. первую строку)
+├── ai/                 # Провайдеры DeepSeek / OpenCode Zen + health
+├── python3/health.lua  # :checkhealth python3 (конвенция lua/<name>/health.lua)
+├── hashfile.lua        # Модуль подсчёта хешей
+├── user/dance_time.lua # Анимация Dance Time (<Leader>DT)
+└── plugins/            # Спеки плагинов
+    ├── astrocore.lua     # Core конфиг и which-key группы
+    ├── astrolsp.lua      # LSP: gopls, format_on_save
+    ├── mason.lua         # Mason: форматтеры, линтеры, DAP-адаптеры
+    ├── codecompanion.lua # DeepSeek / Zen адаптеры
+    ├── none-ls.lua       # none-ls выключен намеренно
+    └── theme.lua         # Тема
 ```
 
 ## Горячие клавиши
@@ -82,7 +87,7 @@ return {
 
 ### Убраны устаревшие компоненты
 
-- **none-ls.lua / null-ls** - удалён, так как deprecated. Форматирование теперь через LSP (gopls, pyright) и `mason-tool-installer`
+- **none-ls.lua / null-ls** - отключены: несовместимы с Neovim 0.12. Форматирование на `:w` делает `astrolsp` через `vim.lsp.buf.format()` (см. `plugins/astrolsp.lua`), линтеры ставит `mason-tool-installer` (см. `plugins/mason.lua`). `conform.nvim` в конфиге нет.
 - **mason-null-ls.nvim** - заменён на `WhoIsSethDaniel/mason-tool-installer.nvim`
 
 ### Go окружение
